@@ -12,7 +12,8 @@ export interface Lesson {
   spots_remaining?: number; // clearer for lessons than tickets
   status: "draft" | "published" | "cancelled" | string;
   subject: string;
-  tutor_username: string; // replaces creator_username
+  tutor_username?: string; // replaces creator_username
+  class_name?: string; // replaces creator_class_name
   is_public: boolean;
   is_past: boolean;
   created_at: string;

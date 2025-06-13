@@ -138,8 +138,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Ensure required fields for User type
       const userWithTimestamps = {
         ...initialUserData,
-        created_at: initialUserData.created_at ?? "",
-        updated_at: initialUserData.updated_at ?? "",
       };
       localStorage.setItem("userData", JSON.stringify(userWithTimestamps));
       setUser(userWithTimestamps);

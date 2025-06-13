@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Lesson, CreateLessonParams } from "@/types/lesson";
+import type { Lesson } from "@/types/lesson";
+import type { CreateLessonParams } from "@/types/lesson";
 import {
   Calendar,
   EyeIcon,
@@ -246,14 +247,20 @@ export default function LessonsManagement({
     } catch (error: unknown) {
       const errorMessage =
         typeof error === "object" && error !== null
-          ? (error as any).response?.data?.msg ||
-            (error as any).response?.data?.message ||
-            (error as any).message ||
-            "Failed to create lesson"
+          ? (typeof (error as { response?: { data?: { msg?: string; message?: string } } }).response?.data?.msg === "string"
+              ? (error as { response?: { data?: { msg?: string } } }).response?.data?.msg
+              : (typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+                  ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+                  : (typeof (error as { message?: string }).message === "string"
+                      ? (error as { message?: string }).message
+                      : "Failed to create lesson"
+                    )
+                )
+            )
           : "Failed to create lesson";
 
-      setError(errorMessage);
-      toast.error(errorMessage);
+      setError(errorMessage ?? "Failed to create lesson");
+      toast.error(errorMessage ?? "Failed to create lesson");
     } finally {
       setLoading(false);
     }
@@ -289,21 +296,27 @@ export default function LessonsManagement({
 
       setDeleteDialogOpen(false);
       setLessonToDelete(null);
-      toast.success(`Lesson "${lessonToDelete.title}" deleted successfully`);
-    } catch (error: unknown) {
-      setLessons(initialLessons);
-      setTotalLessons(initialTotalLessons || initialLessons.length);
-      setDraftLessonsCount(initialDraftLessonsCount || 0);
-
       const errorMessage =
         typeof error === "object" && error !== null
-          ? (error as any).response?.data?.msg ||
-            (error as any).response?.data?.message ||
-            (error as any).message ||
+          ? (typeof (error as { response?: { data?: { msg?: string; message?: string } } }).response?.data?.msg === "string"
+              ? (error as { response?: { data?: { msg?: string } } }).response?.data?.msg
+              : (typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+                  ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+                  : (typeof (error as { message?: string }).message === "string"
+                      ? (error as { message?: string }).message
+                      : "Failed to delete lesson"
+                    )
+                )
+            )
+          : "Failed to delete lesson";
+        typeof error === "object" && error !== null
+          ? (error as { response?: { data?: { msg?: string; message?: string } }; message?: string }).response?.data?.msg ||
+            (error as { response?: { data?: { msg?: string; message?: string } }; message?: string }).response?.data?.message ||
+            (error as { message?: string }).message ||
             "Failed to delete lesson"
           : "Failed to delete lesson";
 
-      setError(errorMessage);
+      setError(errorMessage ?? "Failed to delete lesson");
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -677,7 +690,7 @@ export default function LessonsManagement({
                       target: { name: "lesson_type", value },
                     } as React.ChangeEvent<HTMLSelectElement>)
                   }
-                  defaultValue={newLesson.lesson_type}
+                  defaultValue={newLesson.lesson_type as string}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select lesson type" />
@@ -704,7 +717,7 @@ export default function LessonsManagement({
                       target: { name: "status", value },
                     } as React.ChangeEvent<HTMLSelectElement>)
                   }
-                  defaultValue={newLesson.status}
+                  defaultValue={newLesson.status as string}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
