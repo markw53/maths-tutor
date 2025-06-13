@@ -9,6 +9,7 @@ export interface User {
   email: string;
   full_name?: string;
   role?: "student" | "tutor" | "admin";
+  groups?: { group_id: string }[];
   is_site_admin?: boolean;
   profile_image_url?: string;
   created_at?: string;
