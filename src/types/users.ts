@@ -52,9 +52,9 @@ export interface PromoteToAdminParams {
 // }
 
 // Teams, if you keep them:
-export interface UserTeam {
-  team_id: number;
-  team_name: string;
-  team_description: string;
+export interface UserGroup {
+  group_id: number;
+  group_name: string;
+  group_description: string;
   role: string; // "team_admin", "member", etc.
 }

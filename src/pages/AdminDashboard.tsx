@@ -26,16 +26,22 @@ import {
   UserCogIcon,
   ShieldIcon,
 } from "lucide-react";
-import {
-  UsersManagement,
-  ClassesManagement,
-  LessonsManagement,
-} from "@/components/admin";
-import {
+import UsersManagement from "@/components/admin/UsersManagement";
+import ClassesManagement from "@/components/admin/ClassesManagement";
+import LessonsManagement from "@/components/admin/LessonsManagement";
+import type {
   AdminDashboardData,
-  ExtractedClassMember,
   StatsType,
 } from "@/types/admin";
+
+// Define locally since not exported from @/types/admin
+type ExtractedClassMember = {
+  userId: string;
+  classId: string;
+  username: string;
+  email: string;
+  role: string;
+};
 
 // Define types
 interface SidebarItemType {
@@ -102,12 +108,16 @@ export default function AdminDashboard() {
     classes: [],
     classMembers: [],
     lessons: [],
+    groups: [],
+    groupMembers: [],
   });
   const [stats, setStats] = useState<StatsType>({
     users: 0,
     classes: 0,
     lessons: 0,
     classMembers: 0,
+    groups: 0,
+    groupMembers: 0,
   });
 
   // Verify admin access
@@ -143,10 +153,10 @@ export default function AdminDashboard() {
           // Combine lessons (published/draft) into one list without duplicates
           const lessonsMap = new Map();
           if (Array.isArray(data.lessons)) {
-            data.lessons.forEach((lesson: any) => lessonsMap.set(lesson.id, lesson));
+            data.lessons.forEach((lesson: { id: string; status: string }) => lessonsMap.set(lesson.id, lesson));
           }
           if (Array.isArray(data.draft_lessons)) {
-            data.draft_lessons.forEach((lesson: any) =>
+            data.draft_lessons.forEach((lesson: { id: string; status: string }) =>
               lessonsMap.set(lesson.id, lesson)
             );
           }
@@ -155,9 +165,14 @@ export default function AdminDashboard() {
           // Get class members from users array
           const extractedClassMembers: ExtractedClassMember[] = [];
           if (Array.isArray(data.users)) {
-            data.users.forEach((user: any) => {
+            data.users.forEach((user: {
+              id: string;
+              username: string;
+              email: string;
+              groups?: { group_id: string; role: string }[];
+            }) => {
               if (Array.isArray(user.groups)) {
-                user.groups.forEach((group: any) => {
+                user.groups.forEach((group: { group_id: string; role: string }) => {
                   extractedClassMembers.push({
                     userId: user.id,
                     classId: group.group_id,
@@ -182,6 +197,8 @@ export default function AdminDashboard() {
             classes: data.total_classes || 0,
             lessons: allLessons.length,
             classMembers: data.total_class_members || 0,
+            groups: data.total_groups || 0,
+            groupMembers: data.total_group_members || 0,
           });
         }
       } catch (error) {

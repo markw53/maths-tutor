@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TeamResponse } from "@/types/teams"; // Consider renaming to GroupResponse in your codebase!
+import { TeamResponse } from "@/types/groups"; // Consider renaming to GroupResponse in your codebase!
 import {
   Plus, Pencil, Trash2, Users, RefreshCw, ArrowDown, ArrowUp, ChevronsUpDown, Loader2,
 } from "lucide-react";
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/tooltip";
 import { TeamsManagementProps, TeamParams } from "@/types/admin";
 
-export default function TeamsManagement({
+export default function ClassesManagement({
   teams: initialTeams,
   teamMembers,
   totalTeams: initialTotalTeams,

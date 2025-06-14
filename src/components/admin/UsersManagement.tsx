@@ -145,19 +145,29 @@ export default function UsersManagement({
       setDialogOpen(false);
       setNewUser({ username: "", email: "", password: "" });
       toast.success(`User ${newUser.username} created successfully`);
-    } catch (error: any) {
-      setError(
-        error?.response?.data?.msg ||
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to create user"
-      );
-      toast.error(
-        error?.response?.data?.msg ||
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to create user"
-      );
+    } catch (error: unknown) {
+      let errorMessage = "Failed to create user";
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: unknown }).response !== null &&
+        (error as { response?: { data?: unknown } }).response &&
+        "data" in (error as { response: { data?: unknown } }).response &&
+        typeof ((error as { response: { data?: unknown } }).response as { data?: unknown }).data === "object"
+      ) {
+        const errResponse = (error as { response: { data?: { msg?: string; message?: string } } }).response;
+        errorMessage =
+          errResponse.data?.msg ||
+          errResponse.data?.message ||
+          (error as { message?: string }).message ||
+          errorMessage;
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        errorMessage = (error as { message?: string }).message || errorMessage;
+      }
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -179,21 +189,31 @@ export default function UsersManagement({
       toast.success(`User ${userToDelete.username} deleted successfully`);
       setDeleteDialogOpen(false);
       setUserToDelete(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setUsers(initialUsers);
       setTotalUsers(initialTotalUsers || initialUsers.length);
-      setError(
-        error?.response?.data?.msg ||
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete user"
-      );
-      toast.error(
-        error?.response?.data?.msg ||
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete user"
-      );
+      let errorMessage = "Failed to delete user";
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: unknown }).response !== null &&
+        (error as { response?: { data?: unknown } }).response &&
+        "data" in (error as { response: { data?: unknown } }).response &&
+        typeof ((error as { response: { data?: unknown } }).response as { data?: unknown }).data === "object"
+      ) {
+        const errResponse = (error as { response: { data?: { msg?: string; message?: string } } }).response;
+        errorMessage =
+          errResponse.data?.msg ||
+          errResponse.data?.message ||
+          (error as { message?: string }).message ||
+          errorMessage;
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        errorMessage = (error as { message?: string }).message || errorMessage;
+      }
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -274,21 +294,31 @@ export default function UsersManagement({
       setEditDialogOpen(false);
       setUserToEdit(null);
       setEditedUser({ username: "", email: "", is_site_admin: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setUsers(initialUsers);
       setTotalUsers(initialTotalUsers || initialUsers.length);
-      setError(
-        error?.response?.data?.msg ||
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to update user"
-      );
-      toast.error(
-        error?.response?.data?.msg ||
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to update user"
-      );
+      let errorMessage = "Failed to update user";
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: unknown }).response !== null &&
+        (error as { response?: { data?: unknown } }).response &&
+        "data" in (error as { response: { data?: unknown } }).response &&
+        typeof ((error as { response: { data?: unknown } }).response as { data?: unknown }).data === "object"
+      ) {
+        const errResponse = (error as { response: { data?: { msg?: string; message?: string } } }).response;
+        errorMessage =
+          errResponse.data?.msg ||
+          errResponse.data?.message ||
+          (error as { message?: string }).message ||
+          errorMessage;
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        errorMessage = (error as { message?: string }).message || errorMessage;
+      }
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -317,7 +347,7 @@ export default function UsersManagement({
           break;
         case "created_at":
           comparison =
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            new Date(a.created_at ?? "").getTime() - new Date(b.created_at ?? "").getTime();
           break;
         default:
           comparison = 0;
@@ -402,7 +432,9 @@ export default function UsersManagement({
                           <Badge variant="outline">User</Badge>
                         )}
                       </TableCell>
-                      <TableCell>{formatDate(user.created_at)}</TableCell>
+                      <TableCell>
+                        {user.created_at ? formatDate(user.created_at) : <span className="text-muted-foreground italic">N/A</span>}
+                      </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button

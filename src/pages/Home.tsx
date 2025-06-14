@@ -1,6 +1,6 @@
 import { ContainerTextFlip } from "@/components/ui/container-text-flip";
 import { useEffect, useState } from "react";
-import { Lesson } from "@/types/lesson"; // Consider renaming to Lesson or Session in a real app
+// import { Lesson } from "@/types/lesson"; // Consider renaming to Lesson or Session in a real app
 import lessonsApi from "@/api/lessons"; // Should be lessonsApi if you rename
 import {
   Card,
