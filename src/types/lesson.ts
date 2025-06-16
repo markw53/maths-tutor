@@ -99,3 +99,20 @@ export interface StripeLessonCheckoutProps {
   className?: string;
   disabled?: boolean;
 }
+
+// types/lessons.ts
+
+export interface LessonsListProps {
+  lessons: Lesson[];
+  userId?: string | number;
+}
+
+export interface LessonFormProps {
+  lesson?: Lesson; // Use the Lesson type instead of any
+  isEditing?: boolean;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+}
