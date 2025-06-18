@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TeamResponse } from "@/types/groups"; // Consider renaming to GroupResponse in your codebase!
+import { GroupResponse } from "@/types/groups"; // Consider renaming to GroupResponse in your codebase!
 import {
   Plus, Pencil, Trash2, Users, RefreshCw, ArrowDown, ArrowUp, ChevronsUpDown, Loader2,
 } from "lucide-react";
@@ -20,23 +20,42 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import teamsApi from "@/api/teams";
+import groupsApi from "@/api/groups";
 import usersApi from "@/api/users";
 import ManagementBase from "./ManagementBase";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { TeamsManagementProps, TeamParams } from "@/types/admin";
+import { UsersManagementProps, GroupParams, type GroupsManagementProps } from "@/types/admin";
+
+// Define TeamResponse type if not already imported
+export type TeamResponse = {
+  id: number;
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at?: string;
+  member_count?: number;
+};
 
 export default function ClassesManagement({
-  teams: initialTeams,
-  teamMembers,
-  totalTeams: initialTotalTeams,
-  totalTeamMembers: initialTotalTeamMembers,
-}: TeamsManagementProps) {
+  groups: initialTeams,
+  groupMembers: teamMembers,
+  totalGroups: initialTotalTeams,
+  totalGroupMembers: initialTotalTeamMembers,
+}: GroupsManagementProps) {
   const navigate = useNavigate();
-  const [teams, setTeams] = useState<TeamResponse[]>(initialTeams);
+  const [teams, setTeams] = useState<TeamResponse[]>(
+    initialTeams.map((group) => ({
+      id: group.id,
+      name: group.name,
+      description: group.description,
+      created_at: group.created_at,
+      updated_at: group.updated_at,
+      member_count: group.member_count,
+    }))
+  );
   const [totalTeams, setTotalTeams] = useState<number>(
     initialTotalTeams || initialTeams.length
   );
@@ -309,52 +328,71 @@ export default function ClassesManagement({
     fetchTeamMemberCounts();
   };
 
-  const sortTeams = (
-    teams: TeamResponse[],
-    column: SortKey,
-    direction: "asc" | "desc"
-  ) => {
-    return [...teams].sort((a, b) => {
-      let comparison: number;
-      switch (column) {
-        case "id":
-          comparison = a.id - b.id;
-          break;
-        case "name":
-          comparison = a.name.localeCompare(b.name);
-          break;
-        case "description":
-          comparison = (a.description || "").localeCompare(b.description || "");
-          break;
-        case "members":
-          const countA =
-            teamMemberCounts[a.id] !== undefined
-              ? teamMemberCounts[a.id]
-              : teamMembers.filter((m) => m.team_id === a.id).length;
-          const countB =
-            teamMemberCounts[b.id] !== undefined
-              ? teamMemberCounts[b.id]
-              : teamMembers.filter((m) => m.team_id === b.id).length;
-          comparison = countA - countB;
-          break;
-        case "created_at":
-          comparison =
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-          break;
-        default:
-          comparison = 0;
-      }
-      return direction === "asc" ? comparison : -comparison;
-    });
-  };
+  import { useCallback } from "react";
+
+  const sortTeams = useCallback(
+    (
+      teams: TeamResponse[],
+      column: SortKey,
+      direction: "asc" | "desc"
+    ) => {
+      return [...teams].sort((a, b) => {
+        let comparison: number;
+        switch (column) {
+          case "id":
+            comparison = a.id - b.id;
+            break;
+          case "name":
+            comparison = a.name.localeCompare(b.name);
+            break;
+          case "description":
+            comparison = (a.description || "").localeCompare(b.description || "");
+            break;
+          case "members": {
+            const countA =
+              teamMemberCounts[a.id] !== undefined
+                ? teamMemberCounts[a.id]
+                : teamMembers.filter((m) => m.group_id === a.id).length;
+            const countB =
+              teamMemberCounts[b.id] !== undefined
+                ? teamMemberCounts[b.id]
+                : teamMembers.filter((m) => m.group_id === b.id).length;
+            comparison = countA - countB;
+            break;
+          }
+          case "created_at":
+            comparison =
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            break;
+          default:
+            comparison = 0;
+        }
+        return direction === "asc" ? comparison : -comparison;
+      });
+    },
+    [teamMemberCounts, teamMembers]
+  );
 
   const handleSort = (column: SortKey) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      setSortColumn(column);
-      setSortDirection("desc");
-    }
+  useEffect(() => {
+    setTeams(
+      sortTeams(
+        initialTeams.map((group) => ({
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          created_at: group.created_at,
+          updated_at: group.updated_at,
+          member_count: group.member_count,
+        })),
+        sortColumn,
+        sortDirection
+      )
+    );
+  }, [initialTeams, sortColumn, sortDirection, teamMemberCounts, sortTeams]);
   };
 
   useEffect(() => {
