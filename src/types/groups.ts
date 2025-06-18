@@ -31,6 +31,13 @@ export interface UserGroup {
 /** For API response list */
 export interface GroupResponse {
   group: Group;
+  id: number;
+  name: string;
+  // Add description if it should exist
+  description?: string;
+  created_at: string;
+  updated_at?: string;
+  member_count?: number;
 }
 
 export interface GroupListResponse {
