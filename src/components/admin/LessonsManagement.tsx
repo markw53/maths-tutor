@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Lesson } from "@/types/lesson";
 import type { CreateLessonParams } from "@/types/lesson";
 import {
@@ -51,11 +51,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 import lessonsApi from "@/api/lessons";
-import classesApi from "@/api/classes"; // assumed new file
 import usersApi from "@/api/users";
 import { toast } from "sonner";
 import ManagementBase from "./ManagementBase";
-import { LessonsManagementProps } from "@/types/admin";
+import type { LessonsManagementProps } from "@/types/admin";
 
 export default function LessonsManagement({
   lessons: initialLessons,
@@ -109,7 +108,7 @@ export default function LessonsManagement({
   // Fetch classes for the dropdown
   const fetchClasses = async () => {
     try {
-      const response = await classesApi.getAllClasses();
+      const response = await lessonsApi.getAllLessons();
       setClasses(response.data.classes || []);
     } catch (error) {
       console.error("Failed to fetch classes:", error);
@@ -327,41 +326,6 @@ export default function LessonsManagement({
     navigate(`/lessons/${lesson.id}`);
   };
 
-  const sortLessons = (
-    lessons: Lesson[],
-    column: SortKey,
-    direction: "asc" | "desc"
-  ) => {
-    return [...lessons].sort((a, b) => {
-      let comparison: number;
-      switch (column) {
-        case "id":
-          comparison = a.id - b.id;
-          break;
-        case "title":
-          comparison = a.title.localeCompare(b.title);
-          break;
-        case "class_name":
-          comparison = (a.class_name || "").localeCompare(b.class_name || "");
-          break;
-        case "start_time":
-          comparison =
-            new Date(a.start_time).getTime() - new Date(b.start_time).getTime();
-          break;
-        case "status":
-          comparison = a.status.localeCompare(b.status);
-          break;
-        case "tutor_username":
-          comparison = (a.tutor_username || "").localeCompare(
-            b.tutor_username || ""
-          );
-          break;
-        default:
-          comparison = 0;
-      }
-      return direction === "asc" ? comparison : -comparison;
-    });
-  };
 
   const handleSort = (column: SortKey) => {
     if (sortColumn === column) {
@@ -372,9 +336,44 @@ export default function LessonsManagement({
     }
   };
 
+  const sortLessons = useCallback(
+    (lessons: Lesson[], column: SortKey, direction: "asc" | "desc") => {
+      return [...lessons].sort((a, b) => {
+        let comparison: number;
+        switch (column) {
+          case "id":
+            comparison = a.id - b.id;
+            break;
+          case "title":
+            comparison = a.title.localeCompare(b.title);
+            break;
+          case "class_name":
+            comparison = (a.class_name || "").localeCompare(b.class_name || "");
+            break;
+          case "start_time":
+            comparison =
+              new Date(a.start_time).getTime() - new Date(b.start_time).getTime();
+            break;
+          case "status":
+            comparison = a.status.localeCompare(b.status);
+            break;
+          case "tutor_username":
+            comparison = (a.tutor_username || "").localeCompare(
+              b.tutor_username || ""
+            );
+            break;
+          default:
+            comparison = 0;
+        }
+        return direction === "asc" ? comparison : -comparison;
+      });
+    },
+    []
+  );
+
   useEffect(() => {
     setLessons(sortLessons(initialLessons, sortColumn, sortDirection));
-  }, [initialLessons, sortColumn, sortDirection]);
+  }, [initialLessons, sortColumn, sortDirection, sortLessons]);
 
   const getSortIcon = (column: SortKey) => {
     if (sortColumn !== column) {

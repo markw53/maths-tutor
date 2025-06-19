@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { GroupResponse } from "@/types/groups"; // Consider renaming to GroupResponse in your codebase!
+import { useState, useEffect, useCallback } from "react";
 import {
   Plus, Pencil, Trash2, Users, RefreshCw, ArrowDown, ArrowUp, ChevronsUpDown, Loader2,
 } from "lucide-react";
@@ -27,7 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { UsersManagementProps, GroupParams, type GroupsManagementProps } from "@/types/admin";
+import type { GroupParams, GroupsManagementProps } from "@/types/admin";
 
 // Define TeamResponse type if not already imported
 export type TeamResponse = {
@@ -76,8 +75,8 @@ export default function ClassesManagement({
     name: "",
     description: "",
   };
-  const [newTeam, setNewTeam] = useState<TeamParams>(defaultTeamState);
-  const [editedTeam, setEditedTeam] = useState<TeamParams>({
+  const [newTeam, setNewTeam] = useState<GroupParams>(defaultTeamState);
+  const [editedTeam, setEditedTeam] = useState<GroupParams>({
     name: "",
     description: "",
   });
@@ -93,12 +92,15 @@ export default function ClassesManagement({
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString();
 
-  const getTeamMembersCount = (teamId: number) => {
-    if (teamMemberCounts[teamId] !== undefined) {
-      return teamMemberCounts[teamId];
-    }
-    return teamMembers.filter((member) => member.team_id === teamId).length;
-  };
+  const getTeamMembersCount = useCallback(
+    (teamId: number) => {
+      if (teamMemberCounts[teamId] !== undefined) {
+        return teamMemberCounts[teamId];
+      }
+      return teamMembers.filter((member) => member.group_id === teamId).length;
+    },
+    [teamMemberCounts, teamMembers]
+  );
 
   // --- HANDLERS ---
   const handleInputChange = (
@@ -120,7 +122,7 @@ export default function ClassesManagement({
     }
   };
 
-  const validateForm = (team: TeamParams): boolean => {
+  const validateForm = (team: GroupParams): boolean => {
     const errors: { [key: string]: string } = {};
     if (!team.name || team.name.trim() === "") {
       errors.name = "Group name is required";
@@ -142,7 +144,7 @@ export default function ClassesManagement({
     try {
       setLoading(true);
       setError(null);
-      const response = await teamsApi.createTeam(newTeam); // Or groupsApi in a future refactor
+      const response = await groupsApi.createGroup(newTeam); // Or groupsApi in a future refactor
       const createdTeam = response.data.team;
       setTeams((prev) => [
         ...prev,
@@ -159,9 +161,9 @@ export default function ClassesManagement({
       toast.success(`Group "${createdTeam.name}" created successfully`);
     } catch (error: unknown) {
       const errorMessage = typeof error === "object" && error !== null
-        ? (error as any).response?.data?.msg ||
-          (error as any).response?.data?.message ||
-          (error as any).message ||
+        ? (error as { response?: { data?: { msg?: string; message?: string } }; message?: string }).response?.data?.msg ||
+          (error as { response?: { data?: { msg?: string; message?: string } }; message?: string }).response?.data?.message ||
+          (error as { message?: string }).message ||
           "Failed to create group"
         : "Failed to create group";
       setError(errorMessage);
@@ -198,16 +200,20 @@ export default function ClassesManagement({
             : team
         )
       );
-      await teamsApi.updateTeam(teamToEdit.id.toString(), editedTeam.name);
+      await groupsApi.updateGroup(teamToEdit.id.toString(), editedTeam.name);
       setEditDialogOpen(false);
       setTeamToEdit(null);
       toast.success(`Group "${editedTeam.name}" updated successfully`);
     } catch (error: unknown) {
       setTeams(initialTeams);
+      type ErrorResponse = {
+        response?: { data?: { msg?: string; message?: string } };
+        message?: string;
+      };
       const errorMessage = typeof error === "object" && error !== null
-        ? (error as any).response?.data?.msg ||
-          (error as any).response?.data?.message ||
-          (error as any).message ||
+        ? (error as ErrorResponse).response?.data?.msg ||
+          (error as ErrorResponse).response?.data?.message ||
+          (error as ErrorResponse).message ||
           "Failed to update group"
         : "Failed to update group";
       setError(errorMessage);
@@ -238,7 +244,7 @@ export default function ClassesManagement({
       });
       setTotalTeams((prev) => Math.max(0, prev - 1));
       setTotalTeamMembers((prev) => Math.max(0, prev - teamMemberCount));
-      await teamsApi.deleteTeam(teamToDelete.id.toString());
+      await groupsApi.deleteGroup(teamToDelete.id.toString());
       setDeleteDialogOpen(false);
       setTeamToDelete(null);
       toast.success(`Group "${teamToDelete.name}" deleted successfully`);
@@ -246,10 +252,14 @@ export default function ClassesManagement({
       setTeams(initialTeams);
       setTotalTeams(initialTotalTeams || initialTeams.length);
       fetchTeamMemberCounts();
+      type ErrorResponse = {
+        response?: { data?: { msg?: string; message?: string } };
+        message?: string;
+      };
       const errorMessage = typeof error === "object" && error !== null
-        ? (error as any).response?.data?.msg ||
-          (error as any).response?.data?.message ||
-          (error as any).message ||
+        ? (error as ErrorResponse).response?.data?.msg ||
+          (error as ErrorResponse).response?.data?.message ||
+          (error as ErrorResponse).message ||
           "Failed to delete group"
         : "Failed to delete group";
       setError(errorMessage);
@@ -266,7 +276,7 @@ export default function ClassesManagement({
   // Fetch teams for the dropdown
   const fetchTeams = async () => {
     try {
-      const response = await teamsApi.getAllTeams();
+      const response = await groupsApi.getAllGroups();
       setTeams(response.data.teams || []);
     } catch (error) {
       console.error("Failed to fetch groups:", error);
@@ -294,14 +304,17 @@ export default function ClassesManagement({
     fetchTotalCounts();
   }, [initialTotalTeams, initialTotalTeamMembers]);
 
-  const fetchTeamMemberCounts = async () => {
+  const fetchTeamMemberCounts = useCallback(async () => {
     if (loadingCounts) return;
     try {
       setLoadingCounts(true);
       const countPromises = teams.map(async (team) => {
         try {
-          const response = await teamsApi.getTeamMembers(team.id.toString());
-          return { teamId: team.id, count: response.data.members.length };
+          // If your API expects no arguments, call without arguments
+          const response = await groupsApi.getAllGroupMembers();
+          // If you need to filter members by team, do it here
+          const members = response.data.members.filter((member: { group_id: number }) => member.group_id === team.id);
+          return { teamId: team.id, count: members.length };
         } catch (error) {
           return { teamId: team.id, count: getTeamMembersCount(team.id) };
         }
@@ -317,18 +330,17 @@ export default function ClassesManagement({
     } finally {
       setLoadingCounts(false);
     }
-  };
+  }, [loadingCounts, teams, getTeamMembersCount]);
+
   useEffect(() => {
     if (teams.length > 0) {
       fetchTeamMemberCounts();
     }
-  }, [teams]);
+  }, [teams, fetchTeamMemberCounts]);
 
   const handleRefreshCounts = () => {
     fetchTeamMemberCounts();
   };
-
-  import { useCallback } from "react";
 
   const sortTeams = useCallback(
     (
@@ -377,27 +389,14 @@ export default function ClassesManagement({
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-  useEffect(() => {
-    setTeams(
-      sortTeams(
-        initialTeams.map((group) => ({
-          id: group.id,
-          name: group.name,
-          description: group.description,
-          created_at: group.created_at,
-          updated_at: group.updated_at,
-          member_count: group.member_count,
-        })),
-        sortColumn,
-        sortDirection
-      )
-    );
-  }, [initialTeams, sortColumn, sortDirection, teamMemberCounts, sortTeams]);
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
   };
 
   useEffect(() => {
     setTeams(sortTeams(initialTeams, sortColumn, sortDirection));
-  }, [initialTeams, sortColumn, sortDirection, teamMemberCounts]);
+  }, [initialTeams, sortColumn, sortDirection, teamMemberCounts, sortTeams]);
 
   const getSortIcon = (column: SortKey) => {
     if (sortColumn !== column) {
@@ -716,4 +715,6 @@ export default function ClassesManagement({
       </AlertDialog>
     </>
   );
-}
+};
+
+

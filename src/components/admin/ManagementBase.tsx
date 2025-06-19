@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ManagementBaseProps } from "@/types/admin";
+import type { ManagementBaseProps } from "@/types/admin";
 
 export default function ManagementBase({
   title,

@@ -26,6 +26,7 @@ export interface UserGroup {
   group_name: string;
   group_description?: string;
   role: "student" | "tutor" | "admin";
+  groups?: string;// For nested groups if needed
 }
 
 /** For API response list */

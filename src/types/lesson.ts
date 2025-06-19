@@ -20,6 +20,7 @@ export interface Lesson {
   updated_at: string;
   created_by: number;
   lesson_img_url?: string;
+  groupId?: number; // optional, for group lessons
 }
 
 export interface LessonDetail extends Lesson {}

@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { User, UpdateUserParams, PromoteToAdminParams } from "@/types/users";
+import { useState, useEffect, useCallback } from "react";
+import type { User, UpdateUserParams } from "@/types/users";
+import type { PromoteToAdminParams } from "@/types/users";
 import {
   UserPlus,
   EyeIcon,
@@ -44,7 +45,7 @@ import ManagementBase from "./ManagementBase";
 import usersApi from "@/api/users";
 import authApi from "@/api/auth";
 import { toast } from "sonner";
-import { UsersManagementProps } from "@/types/admin";
+import type { UsersManagementProps } from "@/types/admin";
 
 // Main component
 export default function UsersManagement({
@@ -325,36 +326,37 @@ export default function UsersManagement({
   };
 
   // --- SORTING
-  const sortUsers = (
-    users: User[],
-    column: SortKey,
-    direction: "asc" | "desc"
-  ) => {
-    return [...users].sort((a, b) => {
-      let comparison: number;
-      switch (column) {
-        case "id":
-          comparison = a.id - b.id;
-          break;
-        case "username":
-          comparison = a.username.localeCompare(b.username);
-          break;
-        case "email":
-          comparison = a.email.localeCompare(b.email);
-          break;
-        case "is_site_admin":
-          comparison = (a.is_site_admin ? 1 : 0) - (b.is_site_admin ? 1 : 0);
-          break;
-        case "created_at":
-          comparison =
-            new Date(a.created_at ?? "").getTime() - new Date(b.created_at ?? "").getTime();
-          break;
-        default:
-          comparison = 0;
-      }
-      return direction === "asc" ? comparison : -comparison;
-    });
-  };
+
+  const sortUsers = useCallback(
+    (users: User[], column: SortKey, direction: "asc" | "desc") => {
+      return [...users].sort((a, b) => {
+        let comparison: number;
+        switch (column) {
+          case "id":
+            comparison = a.id - b.id;
+            break;
+          case "username":
+            comparison = a.username.localeCompare(b.username);
+            break;
+          case "email":
+            comparison = a.email.localeCompare(b.email);
+            break;
+          case "is_site_admin":
+            comparison = (a.is_site_admin ? 1 : 0) - (b.is_site_admin ? 1 : 0);
+            break;
+          case "created_at":
+            comparison =
+              new Date(a.created_at ?? "").getTime() - new Date(b.created_at ?? "").getTime();
+            break;
+          default:
+            comparison = 0;
+        }
+        return direction === "asc" ? comparison : -comparison;
+      });
+    },
+    []
+  );
+
   const handleSort = (column: SortKey) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -365,7 +367,7 @@ export default function UsersManagement({
   };
   useEffect(() => {
     setUsers(sortUsers(initialUsers, sortColumn, sortDirection));
-  }, [initialUsers, sortColumn, sortDirection]);
+  }, [initialUsers, sortColumn, sortDirection, sortUsers]);
   const getSortIcon = (column: SortKey) => {
     if (sortColumn !== column) {
       return <ChevronsUpDown className="ml-1 h-4 w-4" />;
