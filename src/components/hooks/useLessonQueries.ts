@@ -2,16 +2,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import lessonsApi from "@/api/lessons";
 import groupsApi from "@/api/groups";
 import usersApi from "@/api/users";
-import ticketsApi from "@/api/tickets";
-import { Lesson } from "@/types/lessons";
+import type { Lesson } from "@/types/lesson";
 import { useDebounce } from "./useDebounce";
 import { useState, useEffect } from "react";
+import { stripeApi } from "@/api";
 
 // React Query Key Factory for Lessons
 export const lessonKeys = {
   all: ["lessons"] as const,
   lists: () => [...lessonKeys.all, "list"] as const,
-  list: (filters: Record<string, any>) =>
+  list: (filters: Record<string, unknown>) =>
     [...lessonKeys.lists(), filters] as const,
   categories: () => [...lessonKeys.all, "categories"] as const,
   search: (query: string) => [...lessonKeys.all, "search", query] as const,
@@ -37,7 +37,7 @@ export type LessonsFilters = {
 
 export function useLessons(filters: LessonsFilters) {
   let apiSortBy = filters.sortBy;
-  let apiSortOrder = filters.sortOrder;
+  const apiSortOrder = filters.sortOrder;
 
   // Available fields for server-side sorting
   const validSortBy = ["start_time", "price", "location", "max_students"];
@@ -77,12 +77,18 @@ export function useLessons(filters: LessonsFilters) {
 }
 
 export function useLessonCategories() {
-  return useQuery({
+  interface LessonCategoryResponse {
+    data: {
+      categories: string[];
+    };
+  }
+
+  return useQuery<string[], Error>({
     queryKey: lessonKeys.categories(),
-    queryFn: () =>
+    queryFn: (): Promise<string[]> =>
       lessonsApi
-        .getLessonCategories()
-        .then((response) => response.data.categories || []),
+        .getLessonSubjects()
+        .then((response: LessonCategoryResponse) => response.data.categories || []),
     staleTime: 30 * 60 * 1000,
   });
 }
@@ -169,7 +175,9 @@ function sortLessons(lessons: Lesson[], sortBy: string, sortOrder: string) {
       const comparison = a.title.localeCompare(b.title);
       return sortOrder === "asc" ? comparison : -comparison;
     } else if (sortBy === "price") {
-      return sortOrder === "asc" ? a.price - b.price : b.price - a.price;
+      const priceA = a.price ?? 0;
+      const priceB = b.price ?? 0;
+      return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
     } else if (sortBy === "start_time") {
       const dateA = new Date(a.start_time).getTime();
       const dateB = new Date(b.start_time).getTime();
@@ -178,9 +186,11 @@ function sortLessons(lessons: Lesson[], sortBy: string, sortOrder: string) {
       const comparison = a.location.localeCompare(b.location);
       return sortOrder === "asc" ? comparison : -comparison;
     } else if (sortBy === "max_students") {
+      const maxA = a.max_students ?? 0;
+      const maxB = b.max_students ?? 0;
       return sortOrder === "asc"
-        ? a.max_students - b.max_students
-        : b.max_students - a.max_students;
+        ? maxA - maxB
+        : maxB - maxA;
     }
     return 0;
   });
@@ -205,7 +215,7 @@ export function useLessonEnrollmentStatus(
     queryKey: lessonKeys.userEnrollmentStatus(lessonId, userId || "anonymous"),
     queryFn: () => {
       if (!userId) return Promise.resolve(false);
-      return lessonsApi.isUserEnrolled(lessonId.toString(), userId);
+      return lessonsApi.isUserRegistered(lessonId.toString(), userId);
     },
     staleTime: 5 * 60 * 1000,
     enabled: !!userId,
@@ -216,14 +226,16 @@ export function useLessonPaymentStatus(
   lessonId: string | number,
   userId?: string | number
 ) {
-  return useQuery({
+  return useQuery<boolean, Error>({
     queryKey: lessonKeys.userPaymentStatus(lessonId, userId || "anonymous"),
-    queryFn: () => {
-      if (!userId) return Promise.resolve(false);
-      return paymentsApi.hasUserPaidForLesson(
-        userId.toString(),
-        lessonId.toString()
-      );
+    queryFn: async () => {
+      if (!userId) return false;
+      const result = await stripeApi.verifyPaymentStatus(userId.toString());
+      // If result is already a boolean, return it; otherwise, extract isPaid property
+      if (typeof result === "boolean") {
+        return result;
+      }
+      return !!result?.isPaid;
     },
     staleTime: 5 * 60 * 1000,
     enabled: !!userId,
@@ -281,7 +293,7 @@ export function useLessonEditPermission(
         // Check if creator or site admin
         if (
           Number(userId) === Number(lesson.created_by) ||
-          userData.username === lesson.creator_username ||
+          userData.username === lesson.tutor_username ||
           userData.is_site_admin
         ) {
           localStorage.setItem(permissionCacheKey, "true");
@@ -301,9 +313,14 @@ export function useLessonEditPermission(
         );
         const memberships = membershipResponse.data.group_members || [];
 
+        interface Membership {
+          group_id: number;
+          role: string;
+        }
+
         const hasEditPermission = memberships.some(
-          (membership: any) =>
-            membership.group_id === lesson.group_id &&
+          (membership: Membership) =>
+            membership.group_id === lesson.groupId &&
             ["group_admin", "owner", "organizer", "lesson_manager"].includes(
               membership.role
             )

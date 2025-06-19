@@ -82,6 +82,11 @@ const lessonsApi = {
     return axiosClient.delete(`/lessons/${id}`);
   },
 
+  enrollInLesson(lessonId: string, userId: string | number) {
+  // Replace with actual API call as needed
+  return axiosClient.post(`/lessons/${lessonId}/enroll`, { userId });
+},
+
   // Register a user for a lesson
   registerForLesson: (lessonId: string, userId: string | number) => {
     return axiosClient.post(`/lessons/${lessonId}/register`, {

@@ -1,6 +1,7 @@
 // Lesson.ts
 
 export interface Lesson {
+  category?: string; // optional category field
   id: number;
   title: string;
   description: string;
@@ -21,6 +22,7 @@ export interface Lesson {
   created_by: number;
   lesson_img_url?: string;
   groupId?: number; // optional, for group lessons
+  max_students?: number; // optional, for group lessons
 }
 
 export interface LessonDetail extends Lesson {}
