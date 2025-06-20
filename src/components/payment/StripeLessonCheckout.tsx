@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { stripeApi, paymentsApi } from "@/api";
-import { StripeLessonCheckoutProps } from "@/types/lessons";
+import { stripeApi } from "@/api";
+import type { StripeLessonCheckoutProps } from "@/types/lesson";
 
 export default function StripeLessonCheckout({
   lesson,
@@ -23,9 +23,8 @@ export default function StripeLessonCheckout({
       const pendingLessonId = sessionStorage.getItem("pendingLessonPayment");
       if (pendingLessonId === lesson.id.toString() && user?.id) {
         try {
-          const isPaid = await paymentsApi.hasUserPaidForLesson(
-            user.id.toString(),
-            lesson.id.toString()
+          const isPaid = await stripeApi.verifyPaymentStatus(
+            user.id.toString()
           );
           if (!isPaid) {
             sessionStorage.removeItem("pendingLessonPayment");
@@ -49,9 +48,8 @@ export default function StripeLessonCheckout({
         const cachedStatus = localStorage.getItem(paymentCacheKey);
 
         if (cachedStatus === "true") {
-          const isPaid = await paymentsApi.hasUserPaidForLesson(
-            user.id.toString(),
-            lesson.id.toString()
+          const isPaid = await stripeApi.verifyPaymentStatus(
+            user.id.toString()
           );
           if (isPaid) {
             setVerifiedPaid(true);
@@ -59,9 +57,8 @@ export default function StripeLessonCheckout({
             localStorage.removeItem(paymentCacheKey);
           }
         } else {
-          const isPaid = await paymentsApi.hasUserPaidForLesson(
-            user.id.toString(),
-            lesson.id.toString()
+          const isPaid = await stripeApi.verifyPaymentStatus(
+            user.id.toString()
           );
           if (isPaid) {
             localStorage.setItem(paymentCacheKey, "true");
@@ -104,9 +101,11 @@ export default function StripeLessonCheckout({
       } else {
         throw new Error("No checkout URL returned from server");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Stripe checkout error:", error);
-      toast.error(error.message || "Failed to initiate checkout");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to initiate checkout";
+      toast.error(errorMessage);
       setIsLoading(false);
     }
   };

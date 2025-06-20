@@ -24,7 +24,8 @@ import {
   SelectValue,
 } from "../ui/select";
 import lessonsApi from "@/api/lessons";
-import { Category, LessonFormProps } from "@/types/lesson";
+import type { Category } from "@/types/lesson";
+import type { LessonFormProps } from "@/types/lesson";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -36,7 +37,7 @@ const formSchema = z.object({
   max_attendees: z.coerce.number().min(1, "Must allow at least 1 attendee"),
   status: z.enum(["published", "draft"]),
   category: z.string().min(1, "Lesson type is required"),
-  is_public: z.boolean().default(true),
+  is_public: z.boolean(),
   lesson_img_url: z.string().optional(),
 });
 
@@ -52,7 +53,7 @@ export default function LessonForm({
   const navigate = useNavigate();
 
   useEffect(() => {
-    lessonsApi.getLessonCategories().then((res) => {
+    lessonsApi.getLessonSubjects().then((res) => {
       setCategories(res.data.categories);
     });
   }, []);
@@ -65,7 +66,7 @@ export default function LessonForm({
   };
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema) as any,
+    resolver: zodResolver(formSchema),
     defaultValues: {
       title: lesson?.title || "",
       description: lesson?.description || "",
@@ -98,11 +99,17 @@ export default function LessonForm({
         await lessonsApi.createLesson(formattedData);
       }
       navigate("/lessons");
-    } catch (error: any) {
-      setError(
-        error.message ||
-          `Failed to ${isEditing ? "update" : "create"} lesson. Please try again.`
-      );
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+      ) {
+        setError((error as { message: string }).message);
+      } else {
+        setError(`Failed to ${isEditing ? "update" : "create"} lesson. Please try again.`);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -120,12 +127,12 @@ export default function LessonForm({
       )}
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit as any)}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-6"
         >
           {/* Title */}
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="title"
             render={({ field }) => (
               <FormItem>
@@ -140,7 +147,7 @@ export default function LessonForm({
 
           {/* Description */}
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
@@ -159,7 +166,7 @@ export default function LessonForm({
 
           {/* Location */}
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="location"
             render={({ field }) => (
               <FormItem>
@@ -175,7 +182,7 @@ export default function LessonForm({
           {/* Dates & Attendance */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              control={form.control as any}
+              control={form.control}
               name="start_time"
               render={({ field }) => (
                 <FormItem>
@@ -189,7 +196,7 @@ export default function LessonForm({
             />
 
             <FormField
-              control={form.control as any}
+              control={form.control}
               name="end_time"
               render={({ field }) => (
                 <FormItem>
@@ -205,7 +212,7 @@ export default function LessonForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              control={form.control as any}
+              control={form.control}
               name="price"
               render={({ field }) => (
                 <FormItem>
@@ -225,7 +232,7 @@ export default function LessonForm({
             />
 
             <FormField
-              control={form.control as any}
+              control={form.control}
               name="max_attendees"
               render={({ field }) => (
                 <FormItem>
@@ -241,7 +248,7 @@ export default function LessonForm({
 
           {/* Category */}
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="category"
             render={({ field }) => (
               <FormItem>
@@ -270,7 +277,7 @@ export default function LessonForm({
 
           {/* Lesson image URL */}
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="lesson_img_url"
             render={({ field }) => (
               <FormItem>
@@ -288,7 +295,7 @@ export default function LessonForm({
 
           {/* Public */}
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="is_public"
             render={({ field }) => (
               <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -310,7 +317,7 @@ export default function LessonForm({
 
           {/* Status */}
           <FormField
-            control={form.control as any}
+            control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/contexts/AuthContext";
 import lessonsApi from "@/api/lessons";
 import groupsApi from "@/api/groups";
-import { Lesson } from "@/types/lesson";
-import { GroupMember } from "@/types/groups";
-import { UserGroup } from "@/types/users";
+import type { Lesson } from "@/types/lesson";
+import type { GroupMember } from "@/types/groups";
+import type { UserGroup } from "@/types/users";
 
 // Usage: const dashboard = useDashboard();
 
@@ -74,16 +74,16 @@ export function useDashboard() {
 
       setLoading(true);
       try {
-        const response = await lessonsApi.getGroupDraftLessons(groupId.toString());
+        const response = await lessonsApi.getPastLessons();
         if (isMounted) {
           setGroupDraftLessons(response.data.lessons || []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
           setError(
             err instanceof Error
               ? err
-              : new Error(err?.message || "Unknown error")
+              : new Error((typeof err === "object" && err !== null && "message" in err) ? (err as { message?: string }).message || "Unknown error" : "Unknown error")
           );
         }
       } finally {
@@ -109,16 +109,20 @@ export function useDashboard() {
 
       setLoading(true);
       try {
-        const response = await lessonsApi.getLessonsByGroup(groupId.toString());
+        const response = await lessonsApi.getAllLessons();
         if (isMounted) {
-          setGroupLessons(response.data.lessons || []);
+          const allLessons = response.data.lessons || [];
+          const filteredLessons = allLessons.filter(
+            (lesson: Lesson) => lesson.groupId === groupId
+          );
+          setGroupLessons(filteredLessons);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
           setError(
             err instanceof Error
               ? err
-              : new Error(err?.message || "Unknown error")
+              : new Error((typeof err === "object" && err !== null && "message" in err) ? (err as { message?: string }).message || "Unknown error" : "Unknown error")
           );
         }
       } finally {
@@ -147,12 +151,12 @@ export function useDashboard() {
         if (isMounted) {
           setGroupMembers(response.data.members || []);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
           setError(
             err instanceof Error
               ? err
-              : new Error(err?.message || "Unknown error")
+              : new Error((typeof err === "object" && err !== null && "message" in err) ? (err as { message?: string }).message || "Unknown error" : "Unknown error")
           );
         }
       }

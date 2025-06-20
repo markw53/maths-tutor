@@ -1,7 +1,6 @@
 // src/contexts/AuthContext.tsx
 import {
   createContext,
-  useContext,
   useState,
   useEffect,
 } from "react";
@@ -37,8 +36,7 @@ const AuthContext = createContext<AuthContextType>({
   updateUserData: () => {},
 });
 
-export const useAuth = () => useContext(AuthContext);
-
+// useAuth hook moved to its own file (useAuth.ts)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);

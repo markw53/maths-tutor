@@ -11,7 +11,7 @@ import {
   BookOpen,
   FileText
 } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import useAuth from "../contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import usersApi from "../api/users";
 import {
@@ -29,9 +29,7 @@ const Header = () => {
   const [currentUserData, setCurrentUserData] = useState(user);
   const location = useLocation();
 
-  // Determine if user is a tutor/student based on roles/teams
-  const isTutor = user?.role?.includes("tutor");
-  const isStudent = user?.role?.includes("student");
+  // Determine if user is a student based on roles/teams
 
   useEffect(() => {
     const initHeader = async () => {
