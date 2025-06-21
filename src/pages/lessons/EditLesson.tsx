@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import LessonForm from "@/components/lessons/LessonForm";
 import lessonsApi from "@/api/lessons";
 import groupsApi from "@/api/groups";
-import { Lesson } from "@/types/lessons";
+import type { Lesson } from "@/types/lesson";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ShieldAlert } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/contexts/AuthContext";
 
 export default function EditLesson() {
   const { lessonId } = useParams();
@@ -57,11 +57,15 @@ export default function EditLesson() {
         // Check permission
         const permission = await checkEditPermission(lessonData);
         setHasPermission(permission);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(
           err instanceof Error
             ? err
-            : new Error(err?.message || "Failed to load lesson")
+            : new Error(
+                typeof err === "object" && err !== null && "message" in err
+                  ? (err as { message?: string }).message || "Failed to load lesson"
+                  : "Failed to load lesson"
+              )
         );
       } finally {
         setLoading(false);

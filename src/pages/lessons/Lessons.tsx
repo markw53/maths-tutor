@@ -23,7 +23,7 @@ import {
   useLessons,
   useLessonCategories,
   useLessonSearch,
-} from "@/hooks/useLessonQueries";
+} from "@/components/hooks/useLessonQueries";
 import {
   getSortValueFromParams,
   getSortParamsFromValue,
@@ -255,9 +255,9 @@ export default function Lessons() {
                   <SelectContent>
                     <SelectItem value="All">All Categories</SelectItem>
                     {categories.map(
-                      (category: { id: number; name: string }) => (
-                        <SelectItem key={category.id} value={category.name}>
-                          {category.name}
+                      (category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
                         </SelectItem>
                       )
                     )}

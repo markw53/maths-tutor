@@ -1,10 +1,10 @@
 import lessonsApi from "@/api/lessons";
 import groupsApi from "@/api/groups";
-import paymentsApi from "@/api/payments";
-import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
+import stripeApi from "@/api/stripe";
+import useAuth from "@/contexts/AuthContext";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { LessonDetail } from "@/types/lessons";
+import type { LessonDetail } from "@/types/lesson";
 import { Button } from "@/components/ui/button";
 import { Calendar, Loader2, PencilIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -33,10 +33,11 @@ export default function LessonDetails() {
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
 
   // Store payment status in localStorage
-  const getPaymentCacheKey = () => {
+
+  const getPaymentCacheKey = useCallback(() => {
     if (!user?.id || !id) return null;
     return `lesson_paid_${user.id}_${id}`;
-  };
+  }, [user?.id, id]);
 
   // Check cached payment status
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function LessonDetails() {
         setIsEnrolled(true);
       }
     }
-  }, [user?.id, id]);
+  }, [user?.id, id, getPaymentCacheKey]);
 
   // Force a refresh when component is focused (e.g., after payment return)
   useEffect(() => {
@@ -68,9 +69,8 @@ export default function LessonDetails() {
       }
       if (pendingLessonId === id && user?.id) {
         try {
-          const isPaid = await paymentsApi.hasUserPaidForLesson(
-            user.id.toString(),
-            id.toString()
+          const isPaid = await stripeApi.verifyPaymentStatus(
+            user.id.toString()
           );
           if (isPaid) {
             setIsEnrolled(true);
@@ -90,7 +90,7 @@ export default function LessonDetails() {
       }
     };
     checkPaymentStatus();
-  }, [id, user?.id]);
+  }, [id, user?.id, getPaymentCacheKey]);
 
   // Fetch lesson data
   useEffect(() => {
@@ -101,7 +101,7 @@ export default function LessonDetails() {
       try {
         let response;
         try {
-          response = await lessonsApi.getDraftLessonById(id);
+          response = await lessonsApi.getLessonById(id);
         } catch (err) {
           response = await lessonsApi.getLessonById(id);
         }
@@ -114,8 +114,12 @@ export default function LessonDetails() {
         if (isAuthenticated && user?.id) {
           checkEnrollmentStatus(lessonData.id);
         }
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to load lesson");
+      } catch (err: unknown) {
+        if (err && typeof err === "object" && "response" in err && err.response && typeof err.response === "object" && "data" in err.response && err.response.data && typeof err.response.data === "object" && "message" in err.response.data) {
+          setError((err.response as { data: { message?: string } }).data.message || "Failed to load lesson");
+        } else {
+          setError("Failed to load lesson");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -137,7 +141,7 @@ export default function LessonDetails() {
 
       if (
         currentUserId === lessonCreatorId ||
-        user.username === lessonData.creator_username
+        user.username === lessonData.tutor_username
       ) {
         setCanEdit(true);
         return;
@@ -170,7 +174,7 @@ export default function LessonDetails() {
   const checkEnrollmentStatus = async (lessonId: number) => {
     if (!user?.id) return;
     try {
-      const isUserEnrolled = await lessonsApi.isUserEnrolled(
+      const isUserEnrolled = await lessonsApi.isUserRegistered(
         lessonId.toString(),
         user.id.toString()
       );
@@ -180,10 +184,10 @@ export default function LessonDetails() {
         let attempts = 0;
         let paid = false;
         while (attempts < 3 && !paid) {
-          paid = await paymentsApi.hasUserPaidForLesson(
-            user.id.toString(),
-            lessonId.toString()
+          const paymentResult = await stripeApi.verifyPaymentStatus(
+            user.id.toString()
           );
+          paid = paymentResult.isPaid;
           if (paid) break;
           if (!paid && attempts < 2) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
