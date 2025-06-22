@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { DashboardSidebar, useDashboard } from "@/components/dashboard";
 import { Button } from "@/components/ui/button";
 import { LessonCard } from "@/components/lessons/LessonCard";
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 import { Edit, Mail, User } from "lucide-react";
 import {
   Card,
@@ -20,15 +20,14 @@ import { toast } from "sonner";
 
 export default function Dashboard() {
   const {
-    myDraftLessons,
-    myLessons,
-    classMembers,
+    groupDraftLessons,
+    groupLessons,
+    groupMembers,
     loading,
     error,
     activeSection,
     setActiveSection,
-    user,
-    classId,
+    groupId,
   } = useDashboard();
   const navigate = useNavigate();
   const { user: authUser } = useAuth();
@@ -46,10 +45,10 @@ export default function Dashboard() {
 
         if (authUser.groups && authUser.groups.length > 0) {
           const currentGroup = authUser.groups.find(
-            (group) => group.group_id === classId
+            (group) => group.group_id === String(groupId)
           );
-          if (currentGroup) {
-            setUserRole(currentGroup.role);
+          if (currentGroup && "role" in currentGroup) {
+            setUserRole((currentGroup as { group_id: string; role: string }).role);
             return;
           }
         }
@@ -63,7 +62,7 @@ export default function Dashboard() {
     };
 
     fetchUserRole();
-  }, [authUser?.id, authUser?.groups, classId, authUser?.role]);
+  }, [authUser?.id, authUser?.groups, groupId, authUser?.role]);
 
   // Only tutors can edit/delete lessons or remove class members
   const canEditLessons = userRole === "tutor" || userRole === "admin";
@@ -100,11 +99,11 @@ export default function Dashboard() {
 
   // Remove a class member
   const handleDeleteClassMember = async (memberId: number) => {
-    if (!classId) return;
+    if (!groupId) return;
 
     try {
       setIsDeleting(memberId.toString());
-      // await classesApi.deleteClassMember(classId.toString(), memberId.toString());
+      // await classesApi.deleteClassMember(groupId.toString(), memberId.toString());
       toast.success("Class member removed successfully");
       window.location.reload();
     } catch (err) {
@@ -138,15 +137,15 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Class Members</h2>
       </div>
-      {classMembers && classMembers.length > 0 ? (
+      {groupMembers && groupMembers.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {classMembers.map((member) => (
+          {groupMembers.map((member) => (
             <Card key={member.id} className="overflow-hidden">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-12 w-12">
-                    {member.profile_image_url && (
-                      <AvatarImage src={member.profile_image_url} alt={member.username} />
+                    {member.avatar_url && (
+                      <AvatarImage src={member.avatar_url} alt={member.username} />
                     )}
                     <AvatarFallback className="bg-primary/10">
                       <User className="h-6 w-6 text-primary" />
@@ -220,14 +219,12 @@ export default function Dashboard() {
                     Create New Lesson
                   </Button>
                 </div>
-                {myDraftLessons && myDraftLessons.length > 0 ? (
+                {groupDraftLessons && groupDraftLessons.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {myDraftLessons.map((lesson) => (
+                    {groupDraftLessons.map((lesson) => (
                       <div key={lesson.id} className="relative">
                         <LessonCard
                           lesson={lesson}
-                          userId={user?.id}
-                          variant="dashboard"
                         />
                         <div className="absolute top-4 right-4 flex gap-2">
                           {canEditLessons && (
@@ -263,27 +260,23 @@ export default function Dashboard() {
                     Create New Lesson
                   </Button>
                 </div>
-                {myLessons && myLessons.length > 0 ? (
+                {groupLessons && groupLessons.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {myLessons.map((lesson) => (
+                    {groupLessons.map((lesson) => (
                       <div key={lesson.id} className="relative">
                         <LessonCard
                           lesson={lesson}
-                          userId={user?.id}
-                          variant="dashboard"
                         />
-                        <div className="absolute top-4 right-4 flex gap-2">
-                          {canEditLessons && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="p-2 h-9 bg-background/80 backdrop-blur-sm cursor-pointer"
-                              onClick={() => handleEditLesson(lesson.id)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
+                        {canEditLessons && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="p-2 h-9 bg-background/80 backdrop-blur-sm cursor-pointer"
+                            onClick={() => handleEditLesson(lesson.id)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </div>

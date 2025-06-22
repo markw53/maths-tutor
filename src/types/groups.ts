@@ -18,6 +18,9 @@ export interface GroupMember {
   email: string;
   role: "student" | "tutor" | "admin";
   joined_at: string;
+  avatar_url?: string; // Optional avatar URL for the user
+  username?: string; // Optional username for the user
+  created_at: string;
 }
 
 /** For use in the user's record, to connect them to their group */

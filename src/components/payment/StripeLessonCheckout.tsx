@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 import { stripeApi } from "@/api";
 import type { StripeLessonCheckoutProps } from "@/types/lesson";
 

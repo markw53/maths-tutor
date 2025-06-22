@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { stripeApi, lessonsApi } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Check, Calendar, AlertTriangle } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -66,9 +66,13 @@ export default function PaymentSuccess() {
             "We verified your payment but had trouble enrolling you. Please contact support if enrollment does not show."
           );
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         setPaymentVerified(false);
-        toast.error(error.message || "Failed to process payment");
+        if (error instanceof Error) {
+          toast.error(error.message || "Failed to process payment");
+        } else {
+          toast.error("Failed to process payment");
+        }
       } finally {
         setIsLoading(false);
       }
