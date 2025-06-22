@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LessonsList } from "@/components/lessons/LessonsList";
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -33,7 +33,8 @@ import {
 export default function Lessons() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user;
 
   // Get URL parameters with defaults
   const categoryFilter = searchParams.get("category") || "All";

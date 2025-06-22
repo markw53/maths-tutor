@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 import usersApi from "@/api/users";
 import {
   Sidebar,
@@ -35,13 +35,6 @@ import type {
 } from "@/types/admin";
 
 // Define locally since not exported from @/types/admin
-type ExtractedClassMember = {
-  userId: string;
-  classId: string;
-  username: string;
-  email: string;
-  role: string;
-};
 
 // Define types
 interface SidebarItemType {
@@ -163,21 +156,21 @@ export default function AdminDashboard() {
           const allLessons = Array.from(lessonsMap.values());
 
           // Get class members from users array
-          const extractedClassMembers: ExtractedClassMember[] = [];
+          let classMemberId = 1;
+          const extractedClassMembers: { id: number; userId: number; classId: number; role: string }[] = [];
           if (Array.isArray(data.users)) {
             data.users.forEach((user: {
-              id: string;
+              id: string | number;
               username: string;
               email: string;
-              groups?: { group_id: string; role: string }[];
+              groups?: { group_id: string | number; role: string }[];
             }) => {
               if (Array.isArray(user.groups)) {
-                user.groups.forEach((group: { group_id: string; role: string }) => {
+                user.groups.forEach((group: { group_id: string | number; role: string }) => {
                   extractedClassMembers.push({
-                    userId: user.id,
-                    classId: group.group_id,
-                    username: user.username,
-                    email: user.email,
+                    id: classMemberId++,
+                    userId: typeof user.id === "string" ? parseInt(user.id, 10) : user.id,
+                    classId: typeof group.group_id === "string" ? parseInt(group.group_id, 10) : group.group_id,
                     role: group.role,
                   });
                 });
@@ -190,6 +183,8 @@ export default function AdminDashboard() {
             classes: Array.isArray(data.classes) ? data.classes : [],
             classMembers: extractedClassMembers,
             lessons: allLessons,
+            groups: Array.isArray(data.groups) ? data.groups : [],
+            groupMembers: Array.isArray(data.groupMembers) ? data.groupMembers : [],
           });
 
           setStats({

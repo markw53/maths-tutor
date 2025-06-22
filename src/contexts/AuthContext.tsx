@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.tsx
 import {
   createContext,
   useState,
@@ -6,11 +5,11 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import authApi from "../api/auth";  // <-- These functions should use a backend hooked to PostgreSQL
-import usersApi from "../api/users";
-import type { User } from "../types/users";
+import authApi from "@/api/auth";
+import usersApi from "@/api/users";
+import type { User } from "@/types/users"; // CHANGE to your user type
 
-// Context type definition
+// 1. TypeScript interfaces for strongly typing context
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
@@ -23,7 +22,7 @@ interface AuthContextType {
   updateUserData: (userData: Partial<User>) => void;
 }
 
-// Default context value
+// 2. Create Context (not exported!), only export the hook and the Provider component
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   user: null,
@@ -36,7 +35,10 @@ const AuthContext = createContext<AuthContextType>({
   updateUserData: () => {},
 });
 
-// useAuth hook moved to its own file (useAuth.ts)
+// 3. Custom hook to use AuthContext everywhere
+// Moved to useAuth.ts for Fast Refresh compatibility
+
+// 4. Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
@@ -45,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isSiteAdmin, setIsSiteAdmin] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  // Get updated user data
+  // Fetch full user data from API
   const fetchUserData = async (userId: number) => {
     try {
       const response = await usersApi.getUserById(userId.toString());
@@ -60,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Check admin status (using API)
+  // Checks user admin status
   const checkSiteAdmin = async () => {
     if (!isAuthenticated || !user?.id) return;
     try {
@@ -72,16 +74,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Update user in context+localStorage
+  // Update user data in context and local storage
   const updateUserData = (userData: Partial<User>) => {
     if (!user) return;
     const updatedUser = { ...user, ...userData };
     setUser(updatedUser);
     localStorage.setItem("userData", JSON.stringify(updatedUser));
-    window.dispatchEvent(new Event("storage")); // sync
+    window.dispatchEvent(new Event("storage"));
   };
 
-  // Initialize auth on mount
+  // Load auth state on mount or on cross-tab storage events
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem("token");
@@ -93,22 +95,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(parsedUserData);
           setIsAuthenticated(true);
           setIsSiteAdmin(!!parsedUserData.is_site_admin);
-          if (parsedUserData.id) await fetchUserData(parsedUserData.id);
+          if (parsedUserData.id) {
+            await fetchUserData(parsedUserData.id);
+          }
         } catch (e) {
           console.error("Failed to parse user data:", e);
           clearAuthData();
         }
       }
-
       setLoading(false);
     };
 
     initializeAuth();
     window.addEventListener("storage", initializeAuth);
     return () => window.removeEventListener("storage", initializeAuth);
+    // eslint-disable-next-line
   }, []);
 
-  // Helper to clear all auth
+  // Helper to clear everything from localStorage and state
   const clearAuthData = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
@@ -118,11 +122,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsSiteAdmin(false);
   };
 
-  // Login (adjust for actual backend API + JWT!)
-  const login = async (username: string, password: string) => {
+  // Login logic
+  const login = async (username: string, password: string): Promise<void> => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await authApi.login({ username, password });
       const responseData = response.data.data;
@@ -133,33 +136,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem("refreshToken", responseData.refreshToken);
 
       const initialUserData = responseData.user;
-      // Ensure required fields for User type
-      const userWithTimestamps = {
-        ...initialUserData,
-      };
-      localStorage.setItem("userData", JSON.stringify(userWithTimestamps));
-      setUser(userWithTimestamps);
+      localStorage.setItem("userData", JSON.stringify(initialUserData));
+      setUser(initialUserData);
       setIsAuthenticated(true);
-      setIsSiteAdmin(!!initialUserData.is_site_admin);
       if (initialUserData.id) {
         await fetchUserData(initialUserData.id);
       }
       window.dispatchEvent(new Event("storage"));
-      // Do not return anything to match the expected type
+      // Do not return anything to match Promise<void>
     } catch (err: unknown) {
       let errorMessage = "Login failed. Please try again.";
-      if (typeof err === "object" && err !== null) {
-        const errorObj = err as { response?: { data?: { message?: string; msg?: string } }; message?: string };
-        if ("response" in errorObj && typeof errorObj.response === "object" && errorObj.response !== null) {
-          const response = errorObj.response;
-          if ("data" in response && typeof response.data === "object" && response.data !== null) {
-            errorMessage =
-              response.data.message ||
-              response.data.msg ||
-              errorMessage;
-          }
-        } else if ("message" in errorObj && typeof errorObj.message === "string") {
-          errorMessage = errorObj.message;
+      if (err && typeof err === "object") {
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "response" in err &&
+          typeof (err as { response?: unknown }).response === "object"
+        ) {
+          const response = (err as { response?: { data?: { message?: string; msg?: string } } }).response;
+          errorMessage =
+            response?.data?.message ||
+            response?.data?.msg ||
+            (err as unknown as Error).message ||
+            errorMessage;
+        } else if (
+          typeof err === "object" &&
+          err !== null &&
+          "message" in err &&
+          typeof (err as { message?: string }).message === "string"
+        ) {
+          errorMessage = (err as { message?: string }).message as string;
         }
       }
       setError(errorMessage);
@@ -169,6 +175,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Logout logic
   const logout = async () => {
     setLoading(true);
     try {
@@ -177,7 +184,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await authApi.logout(refreshToken);
       }
     } catch (error) {
-      console.error("Logout API error:", error);
+      console.error("Logout error:", error);
     } finally {
       clearAuthData();
       setLoading(false);
@@ -186,6 +193,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Object that will be used by the context consumers
   const contextValue: AuthContextType = {
     isAuthenticated,
     user,

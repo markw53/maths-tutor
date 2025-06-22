@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 import {
   Card,
   CardContent,
@@ -47,7 +47,12 @@ export default function Profile() {
           setUserData(fetchedUser);
 
           // Set groups and determine if user is a group member
-          const userGroups = fetchedUser.groups || [];
+          const userGroups = (fetchedUser.groups || []).map((g: UserGroup) => ({
+            group_id: g.group_id,
+            group_name: g.group_name ?? "",
+            group_description: g.group_description ?? "",
+            role: g.role ?? "",
+          }));
           setGroups(userGroups);
           setIsGroupMember(userGroups.length > 0);
 
@@ -64,21 +69,24 @@ export default function Profile() {
           // Fallback to context data if API call fails
           if (user) {
             setUserData(user);
-            setUsername(user.username || "");
-            setEmail(user.email || "");
-            setProfileImageUrl(user.profile_image_url || "");
-
-            // Set groups from context user data as fallback
-            const userGroups = user.groups || [];
-            setGroups(userGroups);
-            setIsGroupMember(userGroups.length > 0);
+            const mappedUserGroups = (user.groups || []).map((g: unknown) => {
+              const group = g as UserGroup;
+              return {
+                group_id: group.group_id,
+                group_name: group.group_name ?? "",
+                group_description: group.group_description ?? "",
+                role: group.role ?? "",
+              };
+            }) as UserGroup[];
+            setGroups(mappedUserGroups);
+            setIsGroupMember(mappedUserGroups.length > 0);
           }
         }
       }
     };
 
     fetchData();
-  }, [user?.id]); // Only re-fetch when user ID changes
+  }, [user, user?.id]); // Only re-fetch when user or user ID changes
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -106,14 +114,19 @@ export default function Profile() {
       });
 
       // Update local user data
-      const updatedUserData = {
-        ...userData,
-        username,
-        email,
-        profile_image_url: profileImageUrl,
-      };
+      const updatedUserData: User | null = userData
+        ? {
+            ...userData,
+            username,
+            email,
+            profile_image_url: profileImageUrl,
+            id: userData.id, // Ensure id is present and of type number
+          }
+        : null;
 
-      setUserData(updatedUserData);
+      if (updatedUserData) {
+        setUserData(updatedUserData);
+      }
 
       // Update user data in context to reflect changes across components
       updateUserData({
