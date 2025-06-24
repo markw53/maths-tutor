@@ -11,7 +11,7 @@ import {
   BookOpen,
   FileText
 } from "lucide-react";
-import useAuth from "../contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import usersApi from "../api/users";
 import {

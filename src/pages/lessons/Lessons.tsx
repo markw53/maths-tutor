@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LessonsList } from "@/components/lessons/LessonsList";
-import useAuth from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import {
   Select,

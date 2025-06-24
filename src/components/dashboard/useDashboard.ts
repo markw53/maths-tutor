@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth"; // NOTE: useAuth should be imported as a named import!
 import lessonsApi from "@/api/lessons";
 import groupsApi from "@/api/groups";
 import type { Lesson } from "@/types/lesson";
 import type { GroupMember } from "@/types/groups";
-import type { UserGroup } from "@/types/users";
+import type { UserGroup } from "@/types/groups"; // <- keep import consistent
 
 // Usage: const dashboard = useDashboard();
 
@@ -17,7 +17,7 @@ export function useDashboard() {
   const [error, setError] = useState<Error | null>(null);
   const [isGroupMember, setIsGroupMember] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<string>("overview");
-  const [groupId, setGroupId] = useState<number | null>(null);
+  const [groupId, setGroupId] = useState<string | null>(null);
   const { user, updateUserData } = useAuth();
   const navigate = useNavigate();
 
@@ -34,15 +34,16 @@ export function useDashboard() {
         if (isMounted && response.data && response.data.groupMember) {
           const groupMemberData = response.data.groupMember;
           setIsGroupMember(true);
-          setGroupId(groupMemberData.group_id);
 
-          // Update user data with group information
-          // Create a UserGroup object to comply with the User type
+          // group_id is string in types/groups.ts, so always assign as string
+          setGroupId(String(groupMemberData.group_id));
+
+          // Build UserGroup with string group_id
           const userGroup: UserGroup = {
-            group_id: groupMemberData.group_id,
+            group_id: String(groupMemberData.group_id),
             group_name: groupMemberData.group_name || "",
             group_description: groupMemberData.group_description || "",
-            role: groupMemberData.role || "",
+            role: groupMemberData.role || "student",
           };
 
           updateUserData({ groups: [userGroup] });
@@ -100,7 +101,7 @@ export function useDashboard() {
     };
   }, [isGroupMember, groupId]);
 
-  // Fetch all lessons
+  // Fetch all lessons for this group
   useEffect(() => {
     let isMounted = true;
 
@@ -112,8 +113,9 @@ export function useDashboard() {
         const response = await lessonsApi.getAllLessons();
         if (isMounted) {
           const allLessons = response.data.lessons || [];
+          // Make sure lesson.groupId is string or coerce to string for comparison
           const filteredLessons = allLessons.filter(
-            (lesson: Lesson) => lesson.groupId === groupId
+            (lesson: Lesson) => String(lesson.groupId) === groupId
           );
           setGroupLessons(filteredLessons);
         }
@@ -147,7 +149,7 @@ export function useDashboard() {
       if (!groupId) return;
 
       try {
-        const response = await groupsApi.getGroupMembers(groupId.toString());
+        const response = await groupsApi.getGroupMembers(groupId);
         if (isMounted) {
           setGroupMembers(response.data.members || []);
         }
