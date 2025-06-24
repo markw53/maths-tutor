@@ -12,7 +12,7 @@ export interface Group {
 /** Group member (student or tutor in a group) */
 export interface GroupMember {
   id: number;
-  group_id: number;
+  group_id: string;
   user_id: number;
   full_name: string;
   email: string;
@@ -25,7 +25,7 @@ export interface GroupMember {
 
 /** For use in the user's record, to connect them to their group */
 export interface UserGroup {
-  group_id: number;
+  group_id: string;
   group_name: string;
   group_description?: string;
   role: "student" | "tutor" | "admin";

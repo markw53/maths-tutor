@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "@/components/hooks/useAuth"; // NOTE: useAuth should be imported as a named import!
+import useAuth from "@/components/hooks/useAuth"; // Named import!
 import lessonsApi from "@/api/lessons";
 import groupsApi from "@/api/groups";
 import type { Lesson } from "@/types/lesson";
 import type { GroupMember } from "@/types/groups";
-import type { UserGroup } from "@/types/groups"; // <- keep import consistent
-
-// Usage: const dashboard = useDashboard();
+import type { UserGroup } from "@/types/groups";
 
 export function useDashboard() {
   const [groupDraftLessons, setGroupDraftLessons] = useState<Lesson[]>([]);
@@ -17,7 +15,7 @@ export function useDashboard() {
   const [error, setError] = useState<Error | null>(null);
   const [isGroupMember, setIsGroupMember] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<string>("overview");
-  const [groupId, setGroupId] = useState<string | null>(null);
+  const [groupId, setGroupId] = useState<string | null>(null); // <--- number
   const { user, updateUserData } = useAuth();
   const navigate = useNavigate();
 
@@ -35,12 +33,12 @@ export function useDashboard() {
           const groupMemberData = response.data.groupMember;
           setIsGroupMember(true);
 
-          // group_id is string in types/groups.ts, so always assign as string
-          setGroupId(String(groupMemberData.group_id));
+          // group_id is number in types/groups.ts
+          setGroupId(groupMemberData.group_id);
 
-          // Build UserGroup with string group_id
+          // Build UserGroup with numeric group_id
           const userGroup: UserGroup = {
-            group_id: String(groupMemberData.group_id),
+            group_id: groupMemberData.group_id,
             group_name: groupMemberData.group_name || "",
             group_description: groupMemberData.group_description || "",
             role: groupMemberData.role || "student",
@@ -84,7 +82,11 @@ export function useDashboard() {
           setError(
             err instanceof Error
               ? err
-              : new Error((typeof err === "object" && err !== null && "message" in err) ? (err as { message?: string }).message || "Unknown error" : "Unknown error")
+              : new Error(
+                  typeof err === "object" && err !== null && "message" in err
+                    ? (err as { message?: string }).message || "Unknown error"
+                    : "Unknown error"
+                )
           );
         }
       } finally {
@@ -113,9 +115,9 @@ export function useDashboard() {
         const response = await lessonsApi.getAllLessons();
         if (isMounted) {
           const allLessons = response.data.lessons || [];
-          // Make sure lesson.groupId is string or coerce to string for comparison
+          // Compare number to number
           const filteredLessons = allLessons.filter(
-            (lesson: Lesson) => String(lesson.groupId) === groupId
+            (lesson: Lesson) => lesson.groupId === Number(groupId)
           );
           setGroupLessons(filteredLessons);
         }
@@ -124,7 +126,11 @@ export function useDashboard() {
           setError(
             err instanceof Error
               ? err
-              : new Error((typeof err === "object" && err !== null && "message" in err) ? (err as { message?: string }).message || "Unknown error" : "Unknown error")
+              : new Error(
+                  typeof err === "object" && err !== null && "message" in err
+                    ? (err as { message?: string }).message || "Unknown error"
+                    : "Unknown error"
+                )
           );
         }
       } finally {
@@ -158,7 +164,11 @@ export function useDashboard() {
           setError(
             err instanceof Error
               ? err
-              : new Error((typeof err === "object" && err !== null && "message" in err) ? (err as { message?: string }).message || "Unknown error" : "Unknown error")
+              : new Error(
+                  typeof err === "object" && err !== null && "message" in err
+                    ? (err as { message?: string }).message || "Unknown error"
+                    : "Unknown error"
+                )
           );
         }
       }
