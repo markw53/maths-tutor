@@ -1,7 +1,7 @@
 import lessonsApi from "@/api/lessons";
 import groupsApi from "@/api/groups";
 import stripeApi from "@/api/stripe";
-import useAuth from "@/contexts/AuthContext";
+import useAuth from "@/components/hooks/useAuth";
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import type { LessonDetail } from "@/types/lesson";
