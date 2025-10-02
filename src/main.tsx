@@ -1,18 +1,11 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './App.css';
-import App from './App.tsx';
-import { QueryProvider } from './providers/QueryProvider.tsx';
-import { Analytics } from '@vercel/analytics/react';
+// src/main.tsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "@/App.css";
+import App from "@/App";
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryProvider>
-      <Analytics />
-      <App />
-    </QueryProvider>
-  </StrictMode>,
+    <App />
+  </StrictMode>
 );
-
-
-
