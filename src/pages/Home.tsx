@@ -1,7 +1,37 @@
 // src/pages/Home.tsx
+import React, { useRef, useState } from "react";
 import { tutors, testimonials } from "@/lib/mockData";
+import emailjs from "@emailjs/browser";
 
 function Home() {
+  const form = useRef<HTMLFormElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+
+  const sendEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.current) return;
+
+    setLoading(true);
+    setStatus(null);
+
+    try {
+      await emailjs.sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,  // ✅ secured
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID, // ✅ secured
+        form.current,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY   // ✅ secured
+      );
+      setStatus("Message sent successfully ✅");
+      form.current.reset();
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      setStatus("Failed to send message ❌");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center w-full">
 
@@ -63,22 +93,56 @@ function Home() {
       <section id="contact" className="py-20 bg-indigo-50 w-full text-center px-4">
         <h2 className="text-3xl font-bold mb-6">Get In Touch</h2>
         <p className="mb-8">
-          We’d love to help with your learning journey. Reach out today!
+          Fill out the form below and we’ll get back to you as soon as possible.
         </p>
-        <div className="space-y-2 text-lg">
-          <p>
-            📧 Email:{" "}
-            <a href="mailto:info@mathtutors.com" className="text-indigo-600">
-              info@mathtutors.com
-            </a>
-          </p>
-          <p>
-            📞 Phone:{" "}
-            <a href="tel:1234567890" className="text-indigo-600">
-              123-456-7890
-            </a>
-          </p>
-        </div>
+
+        <form
+          ref={form}
+          onSubmit={sendEmail}
+          className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow"
+        >
+          <div className="mb-4">
+            <label className="block text-left mb-2 font-semibold">Name</label>
+            <input
+              type="text"
+              name="from_name"
+              required
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-left mb-2 font-semibold">Email</label>
+            <input
+              type="email"
+              name="from_email"
+              required
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-left mb-2 font-semibold">Message</label>
+            <textarea
+              name="message"
+              rows={5}
+              required
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+          >
+            {loading ? "Sending..." : "Send Message"}
+          </button>
+        </form>
+
+        {status && (
+          <p className="mt-4 text-gray-700 font-medium">{status}</p>
+        )}
       </section>
     </div>
   );
