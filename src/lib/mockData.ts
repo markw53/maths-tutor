@@ -1,3 +1,34 @@
+// src/mockdata.ts
+
+// Tutor mock data (for moving cards)
+export const tutors = [
+  {
+    id: 1,
+    name: "Alice Johnson",
+    subject: "Mathematics",
+    description: "Expert in algebra and calculus with 10 years of experience.",
+  },
+  {
+    id: 2,
+    name: "Brian Smith",
+    subject: "Geometry",
+    description: "Helps students visualize and truly understand geometry concepts.",
+  },
+  {
+    id: 3,
+    name: "Clara Lee",
+    subject: "Statistics",
+    description: "Passionate about making data analysis fun and practical.",
+  },
+  {
+    id: 4,
+    name: "David Wilson",
+    subject: "Trigonometry",
+    description: "Specializes in preparing students for exams and competitions.",
+  },
+];
+
+// Testimonials mock data
 export const testimonials = [
   {
     quote:

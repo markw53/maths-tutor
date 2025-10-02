@@ -1,18 +1,17 @@
-import { Button } from "@/components/ui/button";
+// pages/NotFound.tsx
 import { Link } from "react-router-dom";
 
 export default function NotFound() {
   return (
-    <section className="flex items-center justify-center gap-20 py-20">
-      <img src="/404statusdog.jpg" alt="404" className="w-[500px]" />
-      <div className="flex flex-col items-center justify-center">
-        <p className="text-muted-foreground">
-          Ruh Roh. The page you are looking for does not exist.
-        </p>
-        <Button asChild className="mt-4">
-          <Link to="/">Go to Home</Link>
-        </Button>
-      </div>
-    </section>
+    <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <h1 className="text-5xl font-bold text-red-500 mb-4">404</h1>
+      <p className="mb-6">Oops! Page not found.</p>
+      <Link
+        to="/"
+        className="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition"
+      >
+        Go Back Home
+      </Link>
+    </div>
   );
 }
