@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 60" width="360" height="60">
+  <!-- Mathematics -->
+  <circle cx="30" cy="30" r="25" fill="#4F46E5" />
+  <text x="30" y="38" text-anchor="middle"
+        font-size="26" font-weight="700"
+        fill="#ffffff" font-family="serif">π</text>
+
+  <!-- Computer Science -->
+  <circle cx="95" cy="30" r="25" fill="#16A34A" />
+  <text x="95" y="38" text-anchor="middle"
+        font-size="20" font-weight="700"
+        fill="#ffffff" font-family="monospace">{ }</text>
+
+  <!-- Brand text -->
+  <text x="150" y="37"
+        font-size="20" font-weight="600"
+        fill="#111827" font-family="Arial, sans-serif">
+    Maths and CS Tutor
+  </text>
+</svg>

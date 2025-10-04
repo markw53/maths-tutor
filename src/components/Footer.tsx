@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="space-y-3">
             <h3 className="font-semibold text-foreground">MathsTutor</h3>
             <p className="text-sm text-muted-foreground">
-              Helping you master maths—one lesson at a time.
+              Helping you master Mathematics and Computer Science — one lesson at a time.
             </p>
           </div>
 
