@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           {/* Brand */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-foreground">MathsTutor</h3>
+            <h3 className="font-semibold text-foreground">South Brent Tutoring</h3>
             <p className="text-sm text-muted-foreground">
               Helping you master Mathematics and Computer Science — one lesson at a time.
             </p>
@@ -57,7 +57,7 @@ export default function Footer() {
                   href="#contact"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Contact Us
+                  Contact Me
                 </a>
               </li>
               <li>
@@ -91,7 +91,7 @@ export default function Footer() {
         {/* Bottom Row */}
         <div className="mt-6 pt-4 border-t border-border">
           <p className="text-sm text-center text-muted-foreground">
-            © {currentYear} MathsTutor. All rights reserved.
+            © {currentYear} South Brent Tutoring. All rights reserved.
           </p>
         </div>
       </div>

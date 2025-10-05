@@ -6,6 +6,7 @@ import Home from "@/pages/Home";
 import Profile from "@/pages/Profile";
 import Dashboard from "@/pages/Dashboard";
 import NotFound from "@/pages/NotFound";
+import Privacy from "@/pages/Privacy";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
+              <Route path="/privacy" element={<Privacy />} />
             </Routes>
           </Layout>
         </div>

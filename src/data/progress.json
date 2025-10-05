@@ -1,0 +1,7 @@
+[
+  { "name": "Algebra Basics", "progress": 80 },
+  { "name": "Geometry", "progress": 60 },
+  { "name": "Python Fundamentals", "progress": 75 },
+  { "name": "Algorithms", "progress": 50 },
+  { "name": "Exam Practice", "progress": 35 }
+]

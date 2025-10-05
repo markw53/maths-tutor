@@ -16,8 +16,9 @@ const Header = () => {
             <Link to="/" className="flex items-center gap-2 text-inherit">
               <img
                 src={Logo}
-                alt="Maths and CS Tutor"
-                className="h-10 w-[200px] transition-all duration-500 dark:brightness-110 dark:contrast-125"
+                alt="Maths and CS logo"
+                className="h-10 w-[200px] transition-all duration-500 dark:invert dark:contrast-125
+                drop-shadow-md"
               />
             </Link>
 

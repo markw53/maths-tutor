@@ -71,7 +71,12 @@ function Home() {
       </section>
 
       {/* ✅ Testimonials */}
-      <section className="py-20 bg-gray-100 w-full px-4">
+      <section className="
+        py-20 w-full px-4
+         bg-gradient-to-b from-gray-50 to-gray-200
+         dark:from-gray-900 dark:to-gray-800
+         "
+         >
         <h2 className="text-3xl font-bold text-center mb-10">
           What Our Students Say
         </h2>
@@ -79,13 +84,18 @@ function Home() {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="p-6 bg-gray-50 dark:bg-gray-800 shadow rounded-lg flex flex-col">
+              className="p-6 bg-white dark:bg-gray-900 shadow rounded-lg flex flex-col"
+            >
               <p className="text-gray-800 dark:text-gray-200 italic mb-4">
                 "{testimonial.quote}"
               </p>
               <div className="mt-auto">
-                <p className="font-semibold">{testimonial.name}</p>
-                <p className="text-sm text-gray-500">{testimonial.title}</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">
+                  {testimonial.name}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {testimonial.title}
+                </p>
               </div>
             </div>
           ))}
@@ -93,7 +103,9 @@ function Home() {
       </section>
 
       {/* ✅ Contact */}
-      <section id="contact" className="py-20 bg-indigo-50 w-full text-center px-4">
+      <section id="contact" className="py-20 w-full px-4
+         bg-gradient-to-b from-gray-50 to-gray-200
+         dark:from-gray-900 dark:to-gray-800">
         <h2 className="text-3xl font-bold mb-6">Get In Touch</h2>
         <p className="mb-8">
           Fill out the form below and I’ll get back to you as soon as possible.
@@ -105,7 +117,7 @@ function Home() {
           className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow"
         >
           <div className="mb-4">
-            <label className="block text-left mb-2 font-semibold">Name</label>
+            <label className="block text-left mb-2 font-semibold  text-gray-500 dark:text-gray-400">Name</label>
             <input
               type="text"
               name="from_name"
@@ -115,7 +127,7 @@ function Home() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-left mb-2 font-semibold">Email</label>
+            <label className="block text-left mb-2 font-semibold  text-gray-500 dark:text-gray-400">Email</label>
             <input
               type="email"
               name="from_email"
@@ -125,7 +137,7 @@ function Home() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-left mb-2 font-semibold">Message</label>
+            <label className="block text-left mb-2 font-semibold  text-gray-500 dark:text-gray-400">Message</label>
             <textarea
               name="message"
               rows={5}
