@@ -68,6 +68,22 @@ export default function Footer() {
                   Privacy Policy
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/terms"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Terms of Service
+                </Link>    
+              </li>
+              <li>
+                <Link
+                  to="/faq"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  FAQs &amp; Contact Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
