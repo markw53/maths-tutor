@@ -1,6 +1,7 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { Toaster } from "sonner";
 import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
 import Profile from "@/pages/Profile";
@@ -26,6 +27,7 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
             </Routes>
           </Layout>
+          <Toaster position="top-center" richColors closeButton />
         </div>
       </ThemeProvider>
     </Router>
