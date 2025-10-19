@@ -64,20 +64,24 @@ export default function Dashboard() {
 
         <form ref={form} onSubmit={sendBooking} className="space-y-4">
           <div>
-            <label className="block mb-1 font-medium">Your Name</label>
+            <label htmlFor="name" className="block mb-1 font-medium">Your Name</label>
             <input
               type="text"
+              id="name"
               name="from_name"
+              placeholder="ENter your name"
               required
               className="w-full p-3 border rounded focus:ring-2 focus:ring-indigo-500 dark:bg-gray-900"
             />
           </div>
 
           <div>
-            <label className="block mb-1 font-medium">Email Address</label>
+            <label htmlFor="email" className="block mb-1 font-medium">Email Address</label>
             <input
               type="email"
+              id="email"
               name="from_email"
+              placeholder="you@example.com"
               required
               className="w-full p-3 border rounded focus:ring-2 focus:ring-indigo-500 dark:bg-gray-900"
             />
@@ -94,9 +98,11 @@ export default function Dashboard() {
           </div>
 
           <div>
-            <label className="block mb-1 font-medium">Message / Topics</label>
+            <label htmlFor="message" className="block mb-1 font-medium">Message / Topics</label>
             <textarea
+              id="message"
               name="message"
+              placeholder="Write your message here..."
               rows={5}
               required
               className="w-full p-3 border rounded focus:ring-2 focus:ring-indigo-500 dark:bg-gray-900"

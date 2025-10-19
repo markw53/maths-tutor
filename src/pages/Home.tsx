@@ -106,35 +106,41 @@ function Home() {
         className="max-w-lg mx-auto bg-white dark:bg-gray-900 p-8 rounded-lg shadow space-y-4"
       >
         <div>
-          <label className="block mb-2 font-semibold text-gray-500 dark:text-gray-400">
+          <label htmlFor="name" className="block mb-2 font-semibold text-gray-500 dark:text-gray-400">
             Name
           </label>
           <input
             type="text"
+            id="name"
             name="from_name"
+            placeholder="Enter Your Name"
             required
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block mb-2 font-semibold text-gray-500 dark:text-gray-400">
+          <label htmlFor="email" className="block mb-2 font-semibold text-gray-500 dark:text-gray-400">
             Email
           </label>
           <input
             type="email"
+            id="email"
             name="from_email"
+            placeholder="you@example.com"
             required
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800"
           />
         </div>
 
         <div>
-          <label className="block mb-2 font-semibold text-gray-500 dark:text-gray-400">
+          <label htmlFor="message" className="block mb-2 font-semibold text-gray-500 dark:text-gray-400">
             Message
           </label>
           <textarea
+            id="message"
             name="message"
+            placeholder="Write your message here..."
             rows={5}
             required
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800"
