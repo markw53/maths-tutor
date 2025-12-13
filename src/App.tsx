@@ -8,6 +8,7 @@ import Profile from "@/pages/Profile";
 import Dashboard from "@/pages/Dashboard";
 import NotFound from "@/pages/NotFound";
 import Privacy from "@/pages/Privacy";
+import Pricing from "@/pages/Pricing";
 import Terms from "@/pages/Terms";
 import FAQ from "@/pages/FAQ";
 
@@ -23,6 +24,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/faq" element={<FAQ />} />
             </Routes>

@@ -27,6 +27,7 @@ const Header = () => {
               <Link to="/" className="hover:text-primary">Home</Link>
               <Link to="/dashboard" className="hover:text-primary">Dashboard</Link>
               <Link to="/profile" className="hover:text-primary">Profile</Link>
+              <Link to="/pricing" className="hover:text-primary">Pricing</Link>
 
               {/* ✅ Theme Toggle Button */}
               <button

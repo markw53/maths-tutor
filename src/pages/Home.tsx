@@ -1,21 +1,47 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { tutor, testimonials } from "@/lib/mockData";
 import { sendEmail } from "@/lib/email";
 import ThankYouModal from "@/components/ThankYouModal";
 
+const PLAN_OPTIONS = [
+  { value: "single_60", label: "Single Lesson (60 mins)", duration: "60 minutes" },
+  { value: "intensive_90", label: "Intensive Session (90 mins)", duration: "90 minutes" },
+  { value: "pack_4x60", label: "Exam Prep Pack (4 × 60 mins)", duration: "4 × 60 minutes" },
+];
+
 function Home() {
+  const location = useLocation();
+
   const form = useRef<HTMLFormElement>(null);
   const [loading, setLoading] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
 
+  const [selectedPlan, setSelectedPlan] = useState<string>("single_60");
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const plan = params.get("plan");
+    if (plan && PLAN_OPTIONS.some(p => p.value === plan)) {
+      setSelectedPlan(plan);
+    }
+  }, [location.search]);
+
+  const selectedDuration =
+    PLAN_OPTIONS.find(p => p.value === selectedPlan)?.duration ?? "";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.current) return;
+
     setLoading(true);
-    const ok = await sendEmail(form.current); // uses helper → shows toast feedback
+    const ok = await sendEmail(form.current);
     setLoading(false);
+
     if (ok) {
       setShowThankYou(true);
+      form.current.reset();
+      setSelectedPlan("single_60"); // reset default
     }
   };
 
@@ -105,6 +131,35 @@ function Home() {
         onSubmit={handleSubmit}
         className="max-w-lg mx-auto bg-white dark:bg-gray-900 p-8 rounded-lg shadow space-y-4"
       >
+        {/* Plan selector */}
+        <div>
+          <label
+            htmlFor="plan"
+            className="block mb-2 font-semibold text-gray-500 dark:text-gray-400"
+          >
+            Lesson option
+          </label>
+
+          <select
+            id="plan"
+            name="plan"                         // ✅ EmailJS variable
+            value={selectedPlan}
+            onChange={(e) => setSelectedPlan(e.target.value)}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800"
+            required
+          >
+            {PLAN_OPTIONS.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Send duration as well (derived from plan) */}
+        <input type="hidden" name="duration" value={selectedDuration} />
+
+        {/* Name */}
         <div>
           <label htmlFor="name" className="block mb-2 font-semibold text-gray-500 dark:text-gray-400">
             Name

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import emailjs from "@emailjs/browser";
-import ProgressTracker from "@/components/ProgressTracker";
+// import ProgressTracker from "@/components/ProgressTracker";
 
 interface Topic {
   name: string;
@@ -14,12 +14,12 @@ export default function Dashboard() {
   const [status, setStatus] = useState<string | null>(null);
 
   // 🔹 Fetch progress data
-  useEffect(() => {
-    fetch("/src/data/progress.json")
-      .then((res) => res.json())
-      .then(setTopics)
-      .catch((err) => console.error("Progress data error:", err));
-  }, []);
+  // useEffect(() => {
+  //   fetch("/src/data/progress.json")
+  //     .then((res) => res.json())
+  //     .then(setTopics)
+  //     .catch((err) => console.error("Progress data error:", err));
+  // }, []);
 
   const sendBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +50,7 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold text-center mb-4">Dashboard</h1>
 
       {/* 🔸 Progress Tracker */}
+      {/*
       {topics.length > 0 ? (
         <ProgressTracker topics={topics} />
       ) : (
@@ -57,6 +58,7 @@ export default function Dashboard() {
           Loading progress data…
         </p>
       )}
+      */}
 
       {/* Booking Form */}
       <section id="booking" className="bg-gray-50 dark:bg-gray-800 p-6 rounded shadow">
