@@ -34,7 +34,7 @@ export default function Footer() {
                   to="/dashboard"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Dashboard
+                  Resources
                 </Link>
               </li>
               <li>

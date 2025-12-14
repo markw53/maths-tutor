@@ -25,7 +25,7 @@ const Header = () => {
             {/* ✅ Navigation */}
             <nav className="flex items-center space-x-6">
               <Link to="/" className="hover:text-primary">Home</Link>
-              <Link to="/dashboard" className="hover:text-primary">Dashboard</Link>
+              <Link to="/dashboard" className="hover:text-primary">Resources</Link>
               <Link to="/profile" className="hover:text-primary">Profile</Link>
               <Link to="/pricing" className="hover:text-primary">Pricing</Link>
 
