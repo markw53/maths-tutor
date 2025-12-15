@@ -1,13 +1,15 @@
 // src/mockdata.ts
 
 // Tutor mock data (for moving cards)
+import tutorImg from "@/assets/tutor.jpg";
+
 export const tutor = {
   id: 1,
   name: "Mark Workman",
   subjects: ["Mathematics", "Computer Science"],
   description:
     "I provide personalized tutoring in Maths and Computer Science, helping students build confidence and achieve their best results.",
-  image: "/src/assets/tutor.jpg", // optional, add your own photo/profile pic in /src/assets
+  image: tutorImg, // optional, add your own photo/profile pic in /src/assets
 };
 
 // Testimonials mock data
