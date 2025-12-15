@@ -112,7 +112,7 @@ export default function Footer() {
         {/* Bottom Row */}
         <div className="mt-6 pt-4 border-t border-border">
           <p className="text-sm text-center text-muted-foreground">
-            © {currentYear} South Brent Tutoring. All rights reserved.
+            © {currentYear} South Brent Tutoring. All rights reserved. Website designed and maintained by www.devonsdigitalsolutions.co.uk
           </p>
         </div>
       </div>
