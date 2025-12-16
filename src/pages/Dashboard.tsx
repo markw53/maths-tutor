@@ -2,7 +2,7 @@ type ResourceLink = {
   title: string;
   description?: string;
   href: string;
-  tag?: string; // e.g. GCSE / A-Level / CS / Maths
+  tag?: string; // e.g. GCSE CS / GCSE Maths
 };
 
 type ResourceSection = {
@@ -12,35 +12,23 @@ type ResourceSection = {
 };
 
 const sections: ResourceSection[] = [
-  {
+    {
     heading: "Schemes of Work (Suggested)",
     intro:
       "Structured plans you can follow week-by-week. These are good starting points for organising revision.",
     links: [
       {
-        title: "GCSE Maths – 12-week revision plan (template)",
-        description: "A simple checklist-style plan (topics + past paper schedule).",
-        href: "https://www.example.com/gcse-maths-revision-plan",
-        tag: "GCSE Maths",
+        title: "GCSE Scheme of Work (XLSX)",
+        description: "Download the full GCSE scheme of work spreadsheet.",
+        href: "/files/GCSE_scheme_of_work.xlsx",
+        tag: "GCSE",
       },
-      {
-        title: "A-Level Maths – Core topics scheme (template)",
-        description: "Pure + Stats/Mechanics topic order and suggested practice.",
-        href: "https://www.example.com/alevel-maths-scheme",
-        tag: "A-Level Maths",
-      },
-      {
-        title: "GCSE Computer Science – topic-by-topic scheme (template)",
-        description: "Theory + programming practice milestones.",
-        href: "https://www.example.com/gcse-cs-scheme",
-        tag: "GCSE CS",
-      },
+      // ...other links
     ],
   },
   {
-    heading: "Syllabus / Specifications",
-    intro:
-      "Use your exam board specification as the main checklist for what can be assessed.",
+    heading: "Syllabus / Specifications (GCSE)",
+    intro: "Use your exam board specification as your checklist for what can be assessed.",
     links: [
       {
         title: "AQA GCSE Mathematics specification",
@@ -62,17 +50,12 @@ const sections: ResourceSection[] = [
         href: "https://www.ocr.org.uk/qualifications/gcse/computer-science-j277-from-2020/",
         tag: "GCSE CS",
       },
-      {
-        title: "AQA A-Level Mathematics specification",
-        href: "https://www.aqa.org.uk/subjects/mathematics/as-and-a-level/mathematics-7357/specification-at-a-glance",
-        tag: "A-Level Maths",
-      },
     ],
   },
   {
     heading: "Past Papers & Practice Questions",
     intro:
-      "The fastest way to improve is timed practice + review of mistakes. These sources are reliable and free.",
+      "Timed practice + reviewing mistakes is one of the fastest ways to improve.",
     links: [
       {
         title: "Maths Genie (GCSE practice + exam questions)",
@@ -81,16 +64,16 @@ const sections: ResourceSection[] = [
         tag: "GCSE Maths",
       },
       {
-        title: "Physics & Maths Tutor (Maths + CS resources)",
+        title: "Physics & Maths Tutor (GCSE resources)",
         description: "Topic questions, past papers, mark schemes.",
         href: "https://www.physicsandmathstutor.com/",
-        tag: "GCSE/A-Level",
+        tag: "GCSE",
       },
       {
-        title: "AQA Past Papers (Maths & CS)",
-        description: "Use your exam board’s assessment materials where available.",
+        title: "AQA Past Papers / Mark Schemes",
+        description: "Find official AQA assessment materials.",
         href: "https://www.aqa.org.uk/find-past-papers-and-mark-schemes",
-        tag: "Exam Boards",
+        tag: "Exam Board",
       },
     ],
   },
@@ -112,14 +95,8 @@ const sections: ResourceSection[] = [
         tag: "Python",
       },
       {
-        title: "GeeksForGeeks (DSA + theory)",
-        description: "Good for A-Level/advanced topics, algorithms, complexity.",
-        href: "https://www.geeksforgeeks.org/",
-        tag: "Algorithms",
-      },
-      {
         title: "Project Euler (challenge problems)",
-        description: "Excellent for building computational thinking (mathy coding).",
+        description: "Great for computational thinking (mathy coding).",
         href: "https://projecteuler.net/",
         tag: "CS/Maths",
       },
@@ -128,7 +105,7 @@ const sections: ResourceSection[] = [
   {
     heading: "Study Skills & Exam Technique",
     intro:
-      "Use these to improve revision efficiency: spaced repetition, active recall, and exam reflection.",
+      "Improve revision efficiency: spaced repetition, active recall, and exam reflection.",
     links: [
       {
         title: "Pomodoro timer (focus blocks)",
@@ -138,7 +115,7 @@ const sections: ResourceSection[] = [
       },
       {
         title: "Anki (spaced repetition flashcards)",
-        description: "Great for definitions, formulas, CS theory.",
+        description: "Good for definitions, formulas, and CS theory.",
         href: "https://apps.ankiweb.net/",
         tag: "Revision",
       },
@@ -150,14 +127,13 @@ function ResourceCard({ link }: { link: ResourceLink }) {
   return (
     <a
       href={link.href}
-      target="_blank"
-      rel="noreferrer"
+      target={link.href.endsWith(".xlsx") ? undefined : "_blank"}
+      rel={link.href.endsWith(".xlsx") ? undefined : "noreferrer"}
+      download={link.href.endsWith(".xlsx") ? "" : undefined}
       className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:shadow-md transition"
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-semibold text-gray-900 dark:text-white">
-          {link.title}
-        </h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">{link.title}</h3>
         {link.tag && (
           <span className="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-900 dark:bg-indigo-900/30 dark:text-indigo-200">
             {link.tag}
@@ -184,7 +160,7 @@ export default function Dashboard() {
           Resources Hub
         </h1>
         <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Useful links for Mathematics and Computer Science: schemes of work,
+          Useful GCSE resources for Mathematics and Computer Science: schemes of work,
           exam board specifications, practice questions, and revision tools.
         </p>
       </header>
