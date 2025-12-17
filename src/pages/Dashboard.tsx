@@ -13,19 +13,24 @@ type ResourceSection = {
 
 const sections: ResourceSection[] = [
     {
-    heading: "Schemes of Work (Suggested)",
-    intro:
-      "Structured plans you can follow week-by-week. These are good starting points for organising revision.",
-    links: [
-      {
-        title: "GCSE Scheme of Work (XLSX)",
-        description: "Download the full GCSE scheme of work spreadsheet.",
-        href: "/files/GCSE_scheme_of_work.xlsx",
-        tag: "GCSE",
-      },
-      // ...other links
-    ],
-  },
+      heading: "Schemes of Work (Suggested)",
+      intro:
+        "Structured plans you can follow week-by-week. These are good starting points for organising revision.",
+      links: [
+        {
+          title: "GCSE Maths Scheme of Work (XLSX)",
+          description: "Download the GCSE Maths scheme of work spreadsheet.",
+          href: "/files/GCSE_scheme_of_work.xlsx",
+          tag: "GCSE Maths",
+        },
+        {
+          title: "GCSE Computer Science Scheme of Work (PDF)",
+          description: "Download the GCSE Computer Science scheme of work (PDF).",
+          href: "/files/CS_SoW.pdf",
+          tag: "GCSE CS",
+        },
+      ],
+    },
   {
     heading: "Syllabus / Specifications (GCSE)",
     intro: "Use your exam board specification as your checklist for what can be assessed.",
@@ -124,12 +129,14 @@ const sections: ResourceSection[] = [
 ];
 
 function ResourceCard({ link }: { link: ResourceLink }) {
+  const isDownload = link.href.toLowerCase().endsWith(".xlsx");
+
   return (
     <a
       href={link.href}
-      target={link.href.endsWith(".xlsx") ? undefined : "_blank"}
-      rel={link.href.endsWith(".xlsx") ? undefined : "noreferrer"}
-      download={link.href.endsWith(".xlsx") ? "" : undefined}
+      target={isDownload ? undefined : "_blank"}
+      rel={isDownload ? undefined : "noreferrer"}
+      download={isDownload ? "" : undefined}
       className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:shadow-md transition"
     >
       <div className="flex items-start justify-between gap-3">
@@ -140,13 +147,15 @@ function ResourceCard({ link }: { link: ResourceLink }) {
           </span>
         )}
       </div>
+
       {link.description && (
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
           {link.description}
         </p>
       )}
+
       <p className="mt-3 text-sm text-indigo-600 dark:text-indigo-400 underline">
-        Open resource
+        {isDownload ? "Download file" : "Open resource"}
       </p>
     </a>
   );
