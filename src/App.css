@@ -254,3 +254,51 @@ html {
     @apply bg-background text-foreground;
   }
 }
+
+/* --- App background (works with your existing light/dark tokens) --- */
+.app-background {
+  position: relative;
+  min-height: 100vh;
+
+  /* base */
+  background-color: var(--background);
+
+  /* subtle grid + soft glows */
+  background-image:
+    /* grid vertical */
+    linear-gradient(
+      to right,
+      color-mix(in oklch, var(--foreground) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    /* grid horizontal */
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--foreground) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    /* glow 1 (primary) */
+    radial-gradient(
+      900px circle at 15% 10%,
+      color-mix(in oklch, var(--primary) 35%, transparent),
+      transparent 60%
+    ),
+    /* glow 2 (accent) */
+    radial-gradient(
+      900px circle at 85% 15%,
+      color-mix(in oklch, var(--accent) 35%, transparent),
+      transparent 60%
+    );
+
+  background-size:
+    32px 32px,
+    32px 32px,
+    auto,
+    auto;
+
+  background-position:
+    top left,
+    top left,
+    center,
+    center;
+}
