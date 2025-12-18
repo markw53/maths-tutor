@@ -10,6 +10,7 @@ type PricingTier = {
   description: string;
   features: string[];
   highlight?: boolean;
+  bookingType: "60" | "90";
 };
 
 const tiers: PricingTier[] = [
@@ -18,6 +19,7 @@ const tiers: PricingTier[] = [
     name: "Single Lesson",
     price: "£35",
     duration: "60 minutes",
+    bookingType: "60",
     description:
       "Perfect for targeted support on a specific topic or exam question style.",
     features: [
@@ -32,6 +34,7 @@ const tiers: PricingTier[] = [
     name: "Exam Prep Pack",
     price: "£120",
     duration: "4 × 60 minutes",
+    bookingType: "60", // ✅ required
     description:
       "Ideal for consistent progress and exam preparation over a few weeks.",
     features: [
@@ -47,8 +50,8 @@ const tiers: PricingTier[] = [
     name: "Intensive Session",
     price: "£50",
     duration: "90 minutes",
-    description:
-      "Best for deep dives into harder topics or mock paper review.",
+    bookingType: "90",
+    description: "Best for deep dives into harder topics or mock paper review.",
     features: [
       "1:1 online tutoring (90 mins)",
       "Mock paper / past paper review",
@@ -66,22 +69,32 @@ export default function Pricing() {
         <h1 className="text-4xl font-bold">Pricing</h1>
         <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           Clear, simple pricing for 1:1 Mathematics and Computer Science tutoring.
-          If you’re not sure what you need, send a message and I’ll recommend the best option.
+          If you’re not sure what you need, book a slot or message me and I’ll recommend the best option.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+          {/* ✅ Go to booking page */}
           <Link
-            to="/?plan=single_60#contact"
+            to="/booking?type=60"
             className="px-6 py-3 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
           >
             Enquire / Book
           </Link>
 
+          {/* Optional: still keep FAQ */}
           <Link
             to="/faq"
             className="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition"
           >
             View FAQs
+          </Link>
+
+          {/* Optional: link to contact form instead of booking */}
+          <Link
+            to="/?plan=single_60#contact"
+            className="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+          >
+            Ask a question
           </Link>
         </div>
       </header>
@@ -128,12 +141,20 @@ export default function Pricing() {
               ))}
             </ul>
 
-            {/* ✅ This is the important link: it sets plan=... and jumps to #contact */}
+            {/* ✅ Book the correct duration */}
             <Link
-              to={`/?plan=${tier.planValue}#contact`}
+              to={`/booking?type=${tier.bookingType}`}
               className="mt-6 inline-block w-full text-center px-5 py-3 rounded-lg font-semibold transition bg-indigo-600 text-white hover:bg-indigo-700"
             >
-              Choose {tier.name}
+              Book {tier.duration}
+            </Link>
+
+            {/* Optional: if you still want "plan" to prefill contact form */}
+            <Link
+              to={`/?plan=${tier.planValue}#contact`}
+              className="mt-3 inline-block w-full text-center px-5 py-3 rounded-lg font-semibold transition border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              Ask about this option
             </Link>
           </div>
         ))}

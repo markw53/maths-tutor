@@ -11,6 +11,7 @@ import Privacy from "@/pages/Privacy";
 import Pricing from "@/pages/Pricing";
 import Terms from "@/pages/Terms";
 import FAQ from "@/pages/FAQ";
+import Booking from "@/pages/Booking";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/booking" element={<Booking />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/faq" element={<FAQ />} />
             </Routes>
